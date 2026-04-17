@@ -27,6 +27,7 @@ function autoSyncSafe() {
     if (!base) return;
 
     if (document.readyState === 'loading') return;
+    if (getServerApiBase() && !hasLoadedServerState) return;
 
     clearTimeout(window.__syncTimer);
 
@@ -48,16 +49,17 @@ function autoSyncSafe() {
 }
 
 let serverStateSyncTimer = null;
+let hasLoadedServerState = false;
 
 function scheduleServerStateSync(delay = 700) {
     if (!getServerApiBase()) return;
     if (document.readyState === 'loading') return;
+    if (!hasLoadedServerState) return;
     if (serverStateSyncTimer) window.clearTimeout(serverStateSyncTimer);
     serverStateSyncTimer = window.setTimeout(() => {
         syncPortableLibraryState().catch(() => {});
     }, delay);
 }
-
 async function syncPortableLibraryState() {
     const state = getPortableLibraryState();
     const result = await callServerJson('/api/library-state', { state });
@@ -816,28 +818,30 @@ function downloadTextFile(filename, textContent, mimeType = 'application/json;ch
 }
 
 
-if (!localStorage.getItem(STORAGE_KEYS.books)) {
-    localStorage.setItem(STORAGE_KEYS.books, JSON.stringify(initialBooks));
+if (!getServerApiBase()) {
+    if (!localStorage.getItem(STORAGE_KEYS.books)) {
+        localStorage.setItem(STORAGE_KEYS.books, JSON.stringify(initialBooks));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.studentData)) {
+        localStorage.setItem(STORAGE_KEYS.studentData, JSON.stringify(initialStudentData));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.transactions)) {
+        localStorage.setItem(STORAGE_KEYS.transactions, JSON.stringify(initialTransactions));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.notifications)) {
+        localStorage.setItem(STORAGE_KEYS.notifications, JSON.stringify([]));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.receipts)) {
+        localStorage.setItem(STORAGE_KEYS.receipts, JSON.stringify([]));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.renewalRequests)) {
+        localStorage.setItem(STORAGE_KEYS.renewalRequests, JSON.stringify([]));
+    }
+    localStorage.setItem(
+        STORAGE_KEYS.books,
+        JSON.stringify(getBooks().map(ensureBookEnhancements))
+    );
 }
-if (!localStorage.getItem(STORAGE_KEYS.studentData)) {
-    localStorage.setItem(STORAGE_KEYS.studentData, JSON.stringify(initialStudentData));
-}
-if (!localStorage.getItem(STORAGE_KEYS.transactions)) {
-    localStorage.setItem(STORAGE_KEYS.transactions, JSON.stringify(initialTransactions));
-}
-if (!localStorage.getItem(STORAGE_KEYS.notifications)) {
-    localStorage.setItem(STORAGE_KEYS.notifications, JSON.stringify([]));
-}
-if (!localStorage.getItem(STORAGE_KEYS.receipts)) {
-    localStorage.setItem(STORAGE_KEYS.receipts, JSON.stringify([]));
-}
-if (!localStorage.getItem(STORAGE_KEYS.renewalRequests)) {
-    localStorage.setItem(STORAGE_KEYS.renewalRequests, JSON.stringify([]));
-}
-localStorage.setItem(
-    STORAGE_KEYS.books,
-    JSON.stringify(getBooks().map(ensureBookEnhancements))
-);
 
 
 
@@ -905,7 +909,9 @@ function seedManagedUsers() {
     }
     saveUsers(current);
 }
-seedManagedUsers();
+if (!getServerApiBase()) {
+    seedManagedUsers();
+}
 
 
 function getReceipts() {
@@ -2132,11 +2138,15 @@ function applyServerStateToLocal(state = {}) {
     if (Array.isArray(state.feedbackEntries)) localStorage.setItem(STORAGE_KEYS.feedbackEntries, JSON.stringify(state.feedbackEntries));
     if (Array.isArray(state.bookSuggestions)) localStorage.setItem(STORAGE_KEYS.bookSuggestions, JSON.stringify(state.bookSuggestions));
     seedManagedUsers();
+       hasLoadedServerState = true;
 }
+
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (getServerApiBase()) {
     await bootstrapServerBackedState();
+  } else {
+    hasLoadedServerState = true;
   }
 });
 
@@ -2171,7 +2181,10 @@ async function bootstrapServerBackedState() {
         return Array.isArray(localState[key]) && localState[key].length;
     });
 
-    if (remoteHasData) applyServerStateToLocal(remoteState);
+        if (remoteHasData) {
+        applyServerStateToLocal(remoteState);
+        hasLoadedServerState = true;
+    }
     else if (localHasData) await syncPortableLibraryState();
 
     return remote;
