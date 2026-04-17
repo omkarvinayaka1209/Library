@@ -3024,54 +3024,55 @@ function getDashboardGreetingAccent(role = 'admin') {
 
 function ensureSidebarToggle() {
     const sidebar = document.querySelector('.sidebar');
-    const navLeft = document.querySelector('.dashboard-nav .nav-left');
-    if (!sidebar || !navLeft || document.getElementById('sidebar-toggle-btn') || document.body.classList.contains('no-auto-dashboard-tools')) return;
+    const nav = document.querySelector('.dashboard-nav');
+    if (!sidebar || !nav || document.body.classList.contains('no-auto-dashboard-tools')) return;
 
-    document.body.classList.add('has-sidebar-toggle');
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.id = 'sidebar-toggle-btn';
-    btn.className = 'sidebar-toggle-btn';
-    btn.setAttribute('aria-label', 'Toggle sidebar');
-    btn.innerHTML = '<ion-icon name="menu-outline"></ion-icon>';
-    navLeft.prepend(btn);
+    let overlay = document.querySelector('.mobile-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'mobile-overlay';
+        document.body.appendChild(overlay);
+    }
 
-    const applyState = collapsed => {
-        if (window.innerWidth <= 768) {
-            document.body.classList.toggle('sidebar-open', !collapsed);
-            document.body.classList.remove('sidebar-collapsed');
-        } else {
-            document.body.classList.toggle('sidebar-collapsed', collapsed);
-            document.body.classList.remove('sidebar-open');
-        }
+    let btn = nav.querySelector('.sidebar-toggle-mobile');
+
+    if (!btn) {
+        btn = document.createElement('button');
+        btn.className = 'sidebar-toggle-mobile';
+        btn.type = 'button';
+        btn.setAttribute('aria-label', 'Open menu');
+        btn.innerHTML = '<ion-icon name="menu-outline"></ion-icon>';
+        nav.prepend(btn);
+    }
+
+    if (btn.dataset.sidebarBound === 'true') return;
+    btn.dataset.sidebarBound = 'true';
+
+    const openSidebar = () => {
+        document.body.classList.add('sidebar-open');
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
     };
 
-    const key = `vemu_sidebar_${getDashboardRoleVariant()}`;
-    applyState(localStorage.getItem(key) === 'collapsed');
+    const closeSidebar = () => {
+        document.body.classList.remove('sidebar-open');
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    };
 
-    btn.addEventListener('click', () => {
-        if (window.innerWidth <= 768) {
-            document.body.classList.toggle('sidebar-open');
-        } else {
-            const collapsed = !document.body.classList.contains('sidebar-collapsed');
-            document.body.classList.toggle('sidebar-collapsed', collapsed);
-            localStorage.setItem(key, collapsed ? 'collapsed' : 'open');
-        }
-    });
+    const toggleSidebar = () => {
+        const isOpen = document.body.classList.contains('sidebar-open') || sidebar.classList.contains('active');
+        if (isOpen) closeSidebar();
+        else openSidebar();
+    };
+
+    btn.addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', closeSidebar);
 
     window.addEventListener('resize', () => {
-        if (window.innerWidth <= 768) {
-            document.body.classList.remove('sidebar-collapsed');
-        } else {
-            document.body.classList.remove('sidebar-open');
-            document.body.classList.toggle('sidebar-collapsed', localStorage.getItem(key) === 'collapsed');
+        if (window.innerWidth > 768) {
+            closeSidebar();
         }
-    });
-
-    document.addEventListener('click', event => {
-        if (window.innerWidth > 768 || !document.body.classList.contains('sidebar-open')) return;
-        if (sidebar.contains(event.target) || btn.contains(event.target)) return;
-        document.body.classList.remove('sidebar-open');
     });
 }
 
