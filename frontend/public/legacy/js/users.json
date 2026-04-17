@@ -1,0 +1,26 @@
+[
+  {
+    "uid": "admin-master",
+    "id": "vinayaka2850",
+    "username": "vinayaka2850",
+    "pin": "omkar2850",
+    "role": "admin",
+    "name": "Omkar Vinayaka P",
+    "status": "ACTIVE",
+    "accountId": "ADM-VEMU-001",
+    "dept": "Administration",
+    "year": "Administrator"
+  },
+  {
+    "uid": "librarian-seed-001",
+    "id": "librarian01",
+    "username": "librarian01",
+    "pin": "lib123",
+    "role": "librarian",
+    "name": "Chief Librarian",
+    "status": "ACTIVE",
+    "accountId": "LIB-VEMU-001",
+    "dept": "Central Library",
+    "year": "Institutional Staff"
+  }
+]

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Library | VEMU Institute of Technology</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .about-hero {
+            background:
+                linear-gradient(rgba(22, 34, 46, 0.72), rgba(44, 62, 80, 0.78)),
+                url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+            color: white;
+            padding: 110px 0;
+            text-align: center;
+            position: relative;
+        }
+        .staff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        .staff-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-soft);
+        }
+        .staff-img {
+            width: 120px;
+            height: 120px;
+            background: var(--bg-light);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--primary-slate);
+            border: 3px solid var(--accent-gold);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            margin-top: 36px;
+        }
+        .info-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(248,250,252,0.94));
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(15, 23, 42, 0.06);
+            backdrop-filter: blur(6px);
+        }
+        .info-card h3 {
+            color: var(--primary-slate);
+            margin-bottom: 14px;
+        }
+        .timing-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .timing-list li {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+        .timing-list li:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .eresource-list {
+            margin: 16px 0 0;
+            padding-left: 18px;
+            color: var(--text-muted);
+        }
+        .eresource-list li {
+            margin-bottom: 10px;
+        }
+        .bg-panel {
+            border-radius: 28px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: var(--shadow-premium);
+        }
+        .bg-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.88), rgba(255,255,255,0.72));
+        }
+        .bg-panel-content {
+            position: relative;
+            z-index: 1;
+            padding: 40px;
+        }
+        .highlight-strip {
+            margin-top: 32px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+        }
+        .highlight-box {
+            background: rgba(255,255,255,0.92);
+            border-radius: 18px;
+            padding: 18px 20px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(15, 23, 42, 0.06);
+        }
+        .highlight-box h4 {
+            color: var(--primary-slate);
+            margin-bottom: 8px;
+        }
+        @media (max-width: 900px) {
+            .about-two-col {
+                grid-template-columns: 1fr !important;
+            }
+            .bg-panel-content {
+                padding: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-container">
+            <a href="index.html" class="nav-logo">
+                <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" style="height: 50px;">
+                <span>VEMU Library</span>
+            </a>
+
+            <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Open navigation">
+    <ion-icon name="menu-outline"></ion-icon>
+</button>
+
+
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about-library.html" class="active">About Library</a></li>
+                <li><a href="digital-library.html">Digital Resources</a></li>
+                <li><a href="https://vemu.org" target="_blank">College Website</a></li>
+            </ul>
+            <a href="login.html" class="btn btn-primary">Portal Login</a>
+        </div>
+    </nav>
+
+    <header class="about-hero">
+        <div class="container animate-fade">
+            <h1>Infrastructure & Expertise</h1>
+            <p style="opacity: 0.92; margin-top: 15px; max-width: 760px; margin-left: auto; margin-right: auto;">
+                Dedicated to nurturing knowledge, digital learning, and academic growth at VEMU through an inspiring library environment.
+            </p>
+        </div>
+    </header>
+
+    <section style="padding: 100px 0;">
+        <div class="container">
+            <div class="about-two-col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center;">
+                <div>
+                    <h2 style="color: var(--primary-slate); font-size: 2.2rem; margin-bottom: 20px;">The Heart of Academic VEMU</h2>
+                    <p>The Central Library of VEMU Institute of Technology stands as an integrated knowledge resource centre that supports learning, teaching, research, and academic excellence across the campus. It provides a welcoming environment where students and faculty can read, explore, and strengthen subject knowledge.</p>
+                    <p style="margin-top: 20px;">With organized collections, circulation support, and a dedicated digital learning environment, the library helps users access books, journals, and online academic content efficiently. It encourages disciplined study, self-learning, and research-oriented thinking.</p>
+                    <p style="margin-top: 20px;">The library also supports classroom learning, project work, seminar preparation, and competitive exam study by offering access to digital facilities and useful e-resources.</p>
+                </div>
+                <img src="https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=800&q=80" alt="Library" style="width: 100%; border-radius: 20px; box-shadow: var(--shadow-premium);">
+            </div>
+
+            <div class="bg-panel" style="margin-top: 55px; background: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;">
+                <div class="bg-panel-content">
+                    <h2 style="color: var(--primary-slate); text-align: center; margin-bottom: 12px;">Library Facilities & Timings</h2>
+                    <p style="text-align: center; color: var(--text-muted); max-width: 860px; margin: 0 auto;">
+                        VEMU Library offers a calm academic atmosphere for reading, reference work, and digital learning. The space is designed to help students and faculty use their study time effectively.
+                    </p>
+
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h3>Library Timings</h3>
+                            <ul class="timing-list">
+                                <li><span>Working Days</span><span>9:00 AM to 6:00 PM</span></li>
+                                <li><span>Holidays</span><span>10:00 AM to 2:00 PM</span></li>
+                            </ul>
+                            <p style="margin-top: 16px; color: var(--text-muted);">Students and faculty can comfortably use the library for reading, borrowing, reference work, and focused study within the official hours.</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h3>Digital Learning Support</h3>
+                            <p style="color: var(--text-muted);">The library includes a digital library with computer systems that help users access online learning resources, e-content, and academic references in a guided study setup.</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h3>E-Resources Available</h3>
+                            <p style="color: var(--text-muted);">The library supports modern learning through useful academic and electronic resources.</p>
+                            <ul class="eresource-list">
+                                <li>DELNET</li>
+                                <li>National Digital Library (NDL)</li>
+                                <li>J-Gate Journals</li>
+                                <li>SWAYAM & NPTEL Videos</li>
+                                <li>Institution of Engineers Journals</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="highlight-strip">
+                        <div class="highlight-box">
+                            <h4>Reading Environment</h4>
+                            <p style="color: var(--text-muted);">A peaceful space that encourages concentration, academic discipline, and regular reading habits.</p>
+                        </div>
+                        <div class="highlight-box">
+                            <h4>Reference Support</h4>
+                            <p style="color: var(--text-muted);">Useful for assignments, seminars, project development, and subject exploration.</p>
+                        </div>
+                        <div class="highlight-box">
+                            <h4>Technology Access</h4>
+                            <p style="color: var(--text-muted);">Digital support improves access to journals, e-learning portals, and research materials.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-panel" style="margin-top: 40px; background: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;">
+                <div class="bg-panel-content">
+                    <h2 style="color: var(--primary-slate); text-align: center; margin-bottom: 14px;">Learning Atmosphere</h2>
+                    <p style="text-align: center; color: var(--text-muted); max-width: 880px; margin: 0 auto;">
+                        The VEMU library environment is created to inspire reading, knowledge discovery, and responsible academic growth. From printed collections to digital access, every section supports better learning outcomes.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section style="padding: 100px 0; background:
+        linear-gradient(rgba(255,255,255,0.94), rgba(255,255,255,0.96)),
+        url('https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;">
+        <div class="container">
+            <h2 style="text-align: center; color: var(--primary-slate); margin-bottom: 50px;">Know Your Library Staff</h2>
+            <div class="staff-grid">
+                <div class="staff-card">
+                    <div class="staff-img"><ion-icon name="person-outline"></ion-icon></div>
+                    <h3 style="color: var(--primary-slate);">Dr. P. Sreenivasu</h3>
+                    <p style="color: var(--accent-copper); font-weight: 600;">Librarian</p>
+                    <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-muted);">Leading the digital transformation of VEMU library systems.</p>
+                </div>
+                <div class="staff-card">
+                    <div class="staff-img"><ion-icon name="person-outline"></ion-icon></div>
+                    <h3 style="color: var(--primary-slate);">Mr. K. Anjaneyulu</h3>
+                    <p style="color: var(--accent-copper); font-weight: 600;">Asst. Librarian</p>
+                    <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-muted);">Managing technical processing and cataloging.</p>
+                </div>
+                <div class="staff-card">
+                    <div class="staff-img"><ion-icon name="person-outline"></ion-icon></div>
+                    <h3 style="color: var(--primary-slate);">Ms. Lakshmi Devi</h3>
+                    <p style="color: var(--accent-copper); font-weight: 600;">Lib. Assistant</p>
+                    <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-muted);">Assisting students with search and circulation.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-desc">
+                    <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="footer-logo">
+                    <p style="color: rgba(255,255,255,0.6); margin-top: 20px;">VEMU Institute of Technology is one of the top engineering colleges in Chittoor, Andhra Pradesh. We provide quality education with state-of-the-art facilities.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about-library.html">About Library</a></li>
+                        
+                        <li><a href="digital-library.html">Digital Resources</a></li>
+                        <li><a href="login.html">Portal Login</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>College Info</h4>
+                    <ul>
+                        <li><a href="https://vemu.org/about_us">About Us</a></li>
+                        <li><a href="https://vemu.org/vission-mission">Vision & Mission</a></li>
+                        <li><a href="https://vemu.org/academic-calendar">Academic Calendar</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Administration</h4>
+                    <ul style="color: rgba(255,255,255,0.6);">
+                        <li>Principal's Office</li>
+                        <li>Library Dev Cell</li>
+                        <li>+91 88866 61108</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="text-align: center; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); font-size: 0.8rem;">
+                © 2026 VEMU Institute of Technology. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

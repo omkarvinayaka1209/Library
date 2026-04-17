@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Directory | VEMU Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; }
+        .user-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+        .user-summary-card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: var(--shadow-soft);
+            border-left: 4px solid var(--accent-copper);
+        }
+        .action-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .status-pill {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-active {
+            background: rgba(39,174,96,0.12);
+            color: #27AE60;
+        }
+        .status-pending {
+            background: rgba(230,126,34,0.12);
+            color: #D35400;
+        }
+        .role-tag {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: rgba(44,62,80,0.08);
+            color: var(--primary-slate);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .mini-btn {
+            padding: 8px 12px;
+            font-size: 0.74rem;
+        }
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 3000;
+        }
+        .modal-card {
+            width: min(720px, 100%);
+            max-height: 92vh;
+            background: white;
+            border-radius: 18px;
+            box-shadow: var(--shadow-premium);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-head {
+            padding: 18px 20px;
+            background: linear-gradient(135deg, var(--primary-slate), var(--primary-light));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .modal-body {
+            padding: 22px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .modal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .modal-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .credential-box {
+            background: #FBFCFC;
+            border: 1px solid #EAECEE;
+            border-radius: 12px;
+            padding: 14px;
+        }
+        .audit-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 28px;
+            color: var(--text-muted);
+        }
+        @media (max-width: 900px) {
+            .main-content { margin-left: 0; padding: 20px; }
+            .modal-grid, .audit-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="sidebar-logo">
+            <h3>VEMU Admin</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="admin-dashboard.html"><ion-icon name="grid-outline"></ion-icon> Dashboard</a></li>
+            <li><a href="add-books.html"><ion-icon name="add-outline"></ion-icon> Add Records</a></li>
+            <li><a href="manage-books.html"><ion-icon name="library-outline"></ion-icon> Inventory State</a></li>
+            <li><a href="manage-users.html" class="active"><ion-icon name="people-outline"></ion-icon> User Directory</a></li>
+            <li><a href="issue-book.html"><ion-icon name="swap-horizontal-outline"></ion-icon> Transactions</a></li>
+            <li><a href="suggestions.html"><ion-icon name="bulb-outline"></ion-icon> Suggestions</a></li>
+            <li><a href="reports.html"><ion-icon name="stats-chart-outline"></ion-icon> Analytics</a></li>
+            <li><a href="receipts-history.html"><ion-icon name="receipt-outline"></ion-icon> Receipts History</a></li>
+            <li><a href="renewal-requests.html"><ion-icon name="time-outline"></ion-icon> Renewal Requests</a></li>
+            <li style="margin-top: 50px;"><a href="#" id="logout-btn" style="color: #E74C3C;"><ion-icon name="log-out-outline"></ion-icon> Terminate Session</a></li>
+        </ul>
+    </aside>
+
+    <div class="dashboard-nav">
+        <button class="sidebar-toggle-mobile" id="sidebar-toggle-mobile" type="button" aria-label="Open menu">
+    <ion-icon name="menu-outline"></ion-icon>
+</button>
+        <div class="nav-left">
+            <h2 style="font-weight: 700; color: var(--primary-slate);">Academic Registry</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Admin can create and manage librarian, student, and faculty accounts</p>
+        </div>
+        <button type="button" class="btn btn-accent" id="register-user-btn">
+            <ion-icon name="person-add-outline"></ion-icon> Register Scholar
+        </button>
+    </div>
+
+    <main class="main-content">
+        <div class="user-summary-grid">
+            <div class="user-summary-card">
+                <p style="color: var(--text-muted); font-size: 0.76rem;">TOTAL MANAGED ACCOUNTS</p>
+                <h3 id="summary-total" style="font-size: 1.4rem; color: var(--primary-slate); margin-top: 4px;">0</h3>
+            </div>
+            <div class="user-summary-card">
+                <p style="color: var(--text-muted); font-size: 0.76rem;">STUDENT ACCOUNTS</p>
+                <h3 id="summary-student" style="font-size: 1.4rem; color: var(--primary-slate); margin-top: 4px;">0</h3>
+            </div>
+            <div class="user-summary-card">
+                <p style="color: var(--text-muted); font-size: 0.76rem;">FACULTY ACCOUNTS</p>
+                <h3 id="summary-faculty" style="font-size: 1.4rem; color: var(--primary-slate); margin-top: 4px;">0</h3>
+            </div>
+            <div class="user-summary-card">
+                <p style="color: var(--text-muted); font-size: 0.76rem;">LIBRARIAN ACCOUNTS</p>
+                <h3 id="summary-librarian" style="font-size: 1.4rem; color: var(--primary-slate); margin-top: 4px;">0</h3>
+            </div>
+        </div>
+
+        <div class="glass-card" style="background: white;">
+            <div class="action-strip">
+                <div>
+                    <h3 style="color: var(--primary-slate);">Institutional Accounts</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Admin-only page for all managed credentials.</p>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items:center;">
+    <input type="text" class="form-control" id="user-search" placeholder="Search accounts..." style="width: 250px;">
+
+    <select class="form-control" id="role-filter" style="width: 180px;">
+        <option value="">All Roles</option>
+        <option value="student">Student</option>
+        <option value="faculty">Faculty</option>
+        <option value="librarian">Librarian</option>
+    </select>
+
+    <button type="button" class="btn btn-outline" id="export-users-excel-btn">
+        <ion-icon name="grid-outline"></ion-icon> Export Excel
+    </button>
+
+    <button type="button" class="btn btn-outline" id="export-backup-btn">
+        <ion-icon name="download-outline"></ion-icon> Export Backup
+    </button>
+
+    <label class="btn btn-outline" for="import-backup-file" style="cursor:pointer;">
+        <ion-icon name="cloud-upload-outline"></ion-icon> Import Backup
+    </label>
+    <input type="file" id="import-backup-file" accept="application/json" style="display:none;">
+</div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Account ID</th>
+                            <th>Scholastic Name</th>
+                            <th>Classification</th>
+                            <th>Status Flag</th>
+                            <th>Username</th>
+                            <th>Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal-mask" id="register-modal">
+        <div class="modal-card">
+            <div class="modal-head">
+                <div>
+                    <h3 style="font-size: 1.05rem;">Create User Account</h3>
+                    <p style="font-size: 0.78rem; opacity: 0.85; margin-top: 4px;">Autosaved in localStorage</p>
+                </div>
+                <button type="button" class="btn btn-outline" id="close-register-modal" style="background:white; color:var(--primary-slate); border-color:white;">Close</button>
+            </div>
+            <div class="modal-body">
+                <form id="register-user-form">
+                    <div class="modal-grid">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input class="form-control" id="reg-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Role</label>
+                            <select class="form-control" id="reg-role" required>
+                                <option value="student">Student</option>
+                                <option value="faculty">Faculty</option>
+                                <option value="librarian">Librarian</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Account ID</label>
+                            <input class="form-control" id="reg-account-id" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select class="form-control" id="reg-status">
+                                <option value="ACTIVE">ACTIVE</option>
+                                <option value="PENDING">PENDING</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input class="form-control" id="reg-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input class="form-control" id="reg-password" type="text" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Department / Area</label>
+                            <input class="form-control" id="reg-dept">
+                        </div>
+                        <div class="form-group">
+                            <label>Year / Designation</label>
+                            <input class="form-control" id="reg-year">
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-outline" id="clear-register-form">Clear</button>
+                        <button type="submit" class="btn btn-accent">
+                            <ion-icon name="save-outline"></ion-icon> Save Account
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-mask" id="audit-modal">
+        <div class="modal-card">
+            <div class="modal-head">
+                <div>
+                    <h3 style="font-size: 1.05rem;">Audit Access</h3>
+                    <p style="font-size: 0.78rem; opacity: 0.85; margin-top: 4px;">Review and edit account credentials</p>
+                </div>
+                <button type="button" class="btn btn-outline" id="close-audit-modal" style="background:white; color:var(--primary-slate); border-color:white;">Close</button>
+            </div>
+            <div class="modal-body">
+                <form id="audit-user-form">
+                    <input type="hidden" id="audit-user-key">
+                    <div class="audit-layout">
+                        <div>
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input class="form-control" id="audit-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Account ID</label>
+                                <input class="form-control" id="audit-account-id" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Role</label>
+                                <select class="form-control" id="audit-role" required>
+                                    <option value="student">Student</option>
+                                    <option value="faculty">Faculty</option>
+                                    <option value="librarian">Librarian</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select class="form-control" id="audit-status">
+                                    <option value="ACTIVE">ACTIVE</option>
+                                    <option value="PENDING">PENDING</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="credential-box">
+                                <p style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 10px;">Editable Login Credentials</p>
+                                <div class="form-group">
+                                    <label>Username</label>
+                                    <input class="form-control" id="audit-username" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Password</label>
+                                    <input class="form-control" id="audit-password" type="text" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Department / Area</label>
+                                    <input class="form-control" id="audit-dept">
+                                </div>
+                                <div class="form-group">
+                                    <label>Year / Designation</label>
+                                    <input class="form-control" id="audit-year">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-outline" id="delete-user-btn">Delete</button>
+                        <button type="submit" class="btn btn-accent">
+                            <ion-icon name="save-outline"></ion-icon> Update Account
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-mask" id="profile-modal">
+        <div class="modal-card">
+            <div class="modal-head">
+                <div>
+                    <h3 style="font-size: 1.05rem;">Profile Details</h3>
+                </div>
+                <button type="button" class="btn btn-outline" id="close-profile-modal" style="background:white; color:var(--primary-slate); border-color:white;">Close</button>
+            </div>
+            <div class="modal-body">
+                <form id="profile-user-form">
+                    <input type="hidden" id="profile-user-key">
+                    <div class="modal-grid">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input class="form-control" id="profile-email" type="email">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input class="form-control" id="profile-phone">
+                        </div>
+                        <div class="form-group">
+                            <label>Department</label>
+                            <input class="form-control" id="profile-department">
+                        </div>
+                        <div class="form-group">
+                            <label>Year / Designation</label>
+                            <input class="form-control" id="profile-designation">
+                        </div>
+                        <div class="form-group">
+                            <label>Roll / Staff Code</label>
+                            <input class="form-control" id="profile-roll">
+                        </div>
+                        <div class="form-group">
+                            <label>Pending Fine</label>
+                            <input class="form-control" id="profile-fine" type="number" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group" style="grid-column:1 / -1;">
+                            <label>Profile Image</label>
+                            <input class="form-control" id="profile-image-file" type="file" accept="image/*">
+                            <input class="form-control" id="profile-image" type="hidden">
+                            <div style="margin-top:10px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                                <img id="profile-image-preview" alt="Profile Preview" style="width:64px; height:64px; border-radius:50%; object-fit:cover; border:1px solid #EAECEE; display:none;">
+                                <span id="profile-image-text" style="font-size:0.78rem; color: var(--text-muted);">No image uploaded</span>
+                            </div>
+                        </div>
+                        <div class="form-group" style="grid-column:1 / -1;">
+                            <label>Address</label>
+                            <input class="form-control" id="profile-address">
+                        </div>
+                        <div class="form-group" style="grid-column:1 / -1;">
+                            <label>Notes</label>
+                            <textarea class="form-control" id="profile-note" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top:18px;">
+                        <h4 style="color: var(--primary-slate); margin-bottom: 10px;">Fine Payment History</h4>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr><th>Receipt ID</th><th>Transaction ID</th><th>Status</th><th>Amount</th><th>UPI</th><th>Paid On</th><th>Time</th></tr>
+                                </thead>
+                                <tbody id="profile-receipts-list"><tr><td colspan="8" class="empty-state">No payment receipts available.</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-accent"><ion-icon name="save-outline"></ion-icon> Save Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/script.js"></script>
+    <script>
+</script>
+    <script>
+        checkAuth(['admin','librarian']);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = getCurrentUser();
+            const registerModal = document.getElementById('register-modal');
+            const auditModal = document.getElementById('audit-modal');
+            const profileModal = document.getElementById('profile-modal');
+            const registerBtn = document.getElementById('register-user-btn');
+            const closeRegisterBtn = document.getElementById('close-register-modal');
+            const closeAuditBtn = document.getElementById('close-audit-modal');
+            const closeProfileBtn = document.getElementById('close-profile-modal');
+            const clearRegisterFormBtn = document.getElementById('clear-register-form');
+            const registerForm = document.getElementById('register-user-form');
+            const auditForm = document.getElementById('audit-user-form');
+            const profileForm = document.getElementById('profile-user-form');
+            const deleteBtn = document.getElementById('delete-user-btn');
+            // const searchInput = document.getElementById('user-search');
+            // const logoutBtn = document.getElementById('logout-btn');
+            // const exportBackupBtn = document.getElementById('export-backup-btn');
+            // const importBackupFile = document.getElementById('import-backup-file');
+            const searchInput = document.getElementById('user-search');
+const roleFilter = document.getElementById('role-filter');
+const logoutBtn = document.getElementById('logout-btn');
+const exportBackupBtn = document.getElementById('export-backup-btn');
+const exportUsersExcelBtn = document.getElementById('export-users-excel-btn');
+const importBackupFile = document.getElementById('import-backup-file');
+            const regRole = document.getElementById('reg-role');
+            const auditRole = document.getElementById('audit-role');
+
+            if (logoutBtn) logoutBtn.addEventListener('click', logout);
+            if (exportBackupBtn) exportBackupBtn.addEventListener('click', exportLibraryBackup);
+            if (importBackupFile) {
+                importBackupFile.addEventListener('change', e => {
+                    importLibraryBackupFile(e.target.files[0]);
+                    e.target.value = '';
+                });
+            }
+
+            function openModal(modal) { modal.style.display = 'flex'; }
+            function closeModal(modal) { modal.style.display = 'none'; }
+
+            function applyRoleOptions() {
+                if (currentUser?.role === 'librarian') {
+                    [...regRole.options].forEach(opt => { if (opt.value === 'librarian') opt.remove(); });
+                    [...auditRole.options].forEach(opt => { if (opt.value === 'librarian') opt.remove(); });
+                }
+            }
+
+            function getRoleLabel(role, year) {
+                if (role === 'student') return 'Scholar (Student)';
+                if (role === 'faculty') return year || 'Faculty';
+                return 'Institutional Staff';
+            }
+
+            function getStatusMarkup(status) {
+                const active = status === 'ACTIVE';
+                return `<span class="status-pill ${active ? 'status-active' : 'status-pending'}">
+                    <ion-icon name="${active ? 'checkmark-circle-outline' : 'time-outline'}"></ion-icon>
+                    ${status}
+                </span>`;
+            }
+
+            function getVisibleUsers() {
+                return getManageableUsers(currentUser?.role || 'admin');
+            }
+
+            function getFilteredUsers(filterText = '', selectedRole = '') {
+    const allUsers = getVisibleUsers();
+    const search = String(filterText || '').toLowerCase().trim();
+    const role = String(selectedRole || '').toLowerCase().trim();
+
+    return allUsers.filter(u => {
+        const key = `${u.accountId || ''} ${u.name || ''} ${u.role || ''} ${u.username || ''} ${u.id || ''} ${u.dept || ''} ${u.year || ''} ${u.profileDetails?.roll || u.roll || ''}`.toLowerCase();
+        const matchesText = !search || key.includes(search);
+        const matchesRole = !role || String(u.role || '').toLowerCase() === role;
+        return matchesText && matchesRole;
+    });
+}
+
+            function renderSummary(users) {
+                document.getElementById('summary-total').textContent = users.length;
+                document.getElementById('summary-student').textContent = users.filter(u => u.role === 'student').length;
+                document.getElementById('summary-faculty').textContent = users.filter(u => u.role === 'faculty').length;
+                document.getElementById('summary-librarian').textContent = users.filter(u => u.role === 'librarian').length;
+            }
+
+            function renderUsers(filterText = '', selectedRole = '') {
+    const tbody = document.getElementById('users-list');
+    const allUsers = getVisibleUsers();
+    const users = getFilteredUsers(filterText, selectedRole);
+
+    renderSummary(allUsers);
+
+                if (!users.length) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No matching accounts found.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = users.map(user => `
+                    <tr>
+                        <td>${user.accountId || '-'}</td>
+                        <td style="font-weight: 600;">${user.name}</td>
+                        <td>
+                            <span class="role-tag">
+                                <ion-icon name="${user.role === 'student' ? 'school-outline' : user.role === 'faculty' ? 'person-outline' : 'library-outline'}"></ion-icon>
+                                ${getRoleLabel(user.role, user.year)}
+                            </span>
+                        </td>
+                        <td>${getStatusMarkup(user.status || 'ACTIVE')}</td>
+                        <td>${user.username || '-'}</td>
+                        <td>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button type="button" class="btn btn-outline mini-btn audit-btn" data-user-id="${user.uid}">
+                                    <ion-icon name="create-outline"></ion-icon> Audit Access
+                                </button>
+                                <button type="button" class="btn btn-outline mini-btn profile-btn" data-user-id="${user.uid}">
+                                    <ion-icon name="person-circle-outline"></ion-icon> Profile Details
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+                document.querySelectorAll('.audit-btn').forEach(btn => {
+                    btn.addEventListener('click', () => openAudit(btn.dataset.userId));
+                });
+                document.querySelectorAll('.profile-btn').forEach(btn => {
+                    btn.addEventListener('click', () => openProfile(btn.dataset.userId));
+                });
+            }
+
+
+            function buildExcelUserRows(users = []) {
+    return users.map((u, index) => ({
+        'S.No': index + 1,
+        'Full Name': u.name || '',
+        'Username': u.username || u.id || '',
+        'User ID': u.id || u.username || '',
+        'Password': u.pin || '',
+        'Role': u.role || '',
+        'Account ID': u.accountId || '',
+        'Roll No': u.profileDetails?.roll || u.roll || '',
+        'Department': u.profileDetails?.department || u.dept || '',
+        'Year / Designation': u.profileDetails?.designation || u.year || '',
+        'Status': u.status || '',
+        'Email': u.profileDetails?.email || u.email || '',
+        'Phone': u.profileDetails?.phone || u.phone || '',
+        'Address': u.profileDetails?.address || u.address || '',
+        'Created By Role': u.createdByRole || '',
+        'Created By Name': u.createdByName || ''
+    }));
+}
+
+function exportCurrentUsersToExcel() {
+    if (typeof XLSX === 'undefined') {
+        showToast('Excel library not loaded', 'error');
+        return;
+    }
+
+    const users = getFilteredUsers(searchInput?.value || '', roleFilter?.value || '');
+    if (!users.length) {
+        showToast('No users available for export', 'error');
+        return;
+    }
+
+    const rows = buildExcelUserRows(users);
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+
+    const currentRole = String(currentUser?.role || 'admin').toLowerCase();
+    const filename = `${currentRole}_user_list.xlsx`;
+    XLSX.writeFile(workbook, filename);
+
+    showToast(`Excel exported with ${users.length} users`, 'success');
+}
+
+            function resetRegisterForm() {
+                registerForm.reset();
+                document.getElementById('reg-role').value = 'student';
+                document.getElementById('reg-status').value = 'ACTIVE';
+            }
+
+            function openAudit(uid) {
+                const user = getUsers().find(u => u.uid === uid);
+                if (!user) {
+                    showToast('User not found', 'error');
+                    return;
+                }
+                if (!canManageRole(currentUser.role, user.role)) {
+                    showToast('Access denied for this account', 'error');
+                    return;
+                }
+
+                document.getElementById('audit-user-key').value = user.uid;
+                document.getElementById('audit-name').value = user.name || '';
+                document.getElementById('audit-account-id').value = user.accountId || '';
+                document.getElementById('audit-role').value = user.role || 'student';
+                document.getElementById('audit-status').value = user.status || 'ACTIVE';
+                document.getElementById('audit-username').value = user.username || '';
+                document.getElementById('audit-password').value = user.pin || '';
+                document.getElementById('audit-dept').value = user.dept || '';
+                document.getElementById('audit-year').value = user.year || '';
+                openModal(auditModal);
+            }
+
+
+            function openProfile(uid) {
+                const user = getUsers().find(u => u.uid === uid);
+                if (!user) {
+                    showToast('User not found', 'error');
+                    return;
+                }
+                if (!canManageRole(currentUser.role, user.role)) {
+                    showToast('Access denied for this account', 'error');
+                    return;
+                }
+                const info = getUserProfileDetails(uid);
+                document.getElementById('profile-user-key').value = uid;
+                document.getElementById('profile-email').value = info.profileDetails.email || '';
+                document.getElementById('profile-phone').value = info.profileDetails.phone || '';
+                document.getElementById('profile-department').value = info.profileDetails.department || info.dept || '';
+                document.getElementById('profile-designation').value = info.profileDetails.designation || info.year || '';
+                document.getElementById('profile-roll').value = info.profileDetails.roll || info.roll || '';
+                document.getElementById('profile-image').value = info.profileDetails.profileImage || '';
+                const profileImageFile = document.getElementById('profile-image-file');
+                if (profileImageFile) profileImageFile.value = '';
+                const previewImg = document.getElementById('profile-image-preview');
+                const previewText = document.getElementById('profile-image-text');
+                if (info.profileDetails.profileImage) { previewImg.src = info.profileDetails.profileImage; previewImg.style.display = 'block'; previewText.textContent = 'Profile image uploaded'; } else { previewImg.style.display = 'none'; previewText.textContent = 'No image uploaded'; }
+                document.getElementById('profile-address').value = info.profileDetails.address || '';
+                document.getElementById('profile-note').value = info.profileDetails.note || '';
+                document.getElementById('profile-fine').value = Number(info.fineAmount || 0).toFixed(2);
+                const receipts = getReceiptsForUser(uid);
+                const receiptBody = document.getElementById('profile-receipts-list');
+                receiptBody.innerHTML = receipts.length ? receipts.map(item => `
+                    <tr>
+                        <td>${item.receiptId}</td>
+                        <td>${item.transactionId || '-'}</td>
+                        <td><span class="status-pill ${item.verificationStatus === 'RECEIVED' ? 'status-active' : 'status-pending'}">${item.verificationStatus || 'PENDING'}</span></td>
+                        <td>₹${Number(item.amount || 0).toFixed(2)}</td>
+                        <td>${item.upiId || '-'}</td>
+                        <td>${formatDate(item.paidAt)}</td>
+                        <td>${new Date(item.paidAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true })}</td>
+                        <td><button type="button" class="btn btn-outline mini-btn" data-download-receipt="${item.receiptId}"><ion-icon name="print-outline"></ion-icon> Print / PDF</button></td>
+                    </tr>
+                `).join('') : `<tr><td colspan="8" class="empty-state">No payment receipts available.</td></tr>`;
+                openModal(profileModal); bindReceiptButtons(profileModal);
+            }
+
+            registerBtn.addEventListener('click', () => openModal(registerModal));
+            closeRegisterBtn.addEventListener('click', () => closeModal(registerModal));
+            closeAuditBtn.addEventListener('click', () => closeModal(auditModal));
+            closeProfileBtn.addEventListener('click', () => closeModal(profileModal));
+            clearRegisterFormBtn.addEventListener('click', resetRegisterForm);
+
+            registerModal.addEventListener('click', e => { if (e.target === registerModal) closeModal(registerModal); });
+            auditModal.addEventListener('click', e => { if (e.target === auditModal) closeModal(auditModal); });
+            profileModal.addEventListener('click', e => { if (e.target === profileModal) closeModal(profileModal); });
+
+            registerForm.addEventListener('submit', e => {
+                e.preventDefault();
+                const payload = {
+                    name: document.getElementById('reg-name').value.trim(),
+                    role: document.getElementById('reg-role').value,
+                    accountId: document.getElementById('reg-account-id').value.trim(),
+                    status: document.getElementById('reg-status').value,
+                    username: document.getElementById('reg-username').value.trim(),
+                    pin: document.getElementById('reg-password').value.trim(),
+                    dept: document.getElementById('reg-dept').value.trim(),
+                    year: document.getElementById('reg-year').value.trim()
+                };
+
+                const result = adminCreateManagedUser(payload);
+                if (!result.ok) {
+                    showToast(result.message, 'error');
+                    return;
+                }
+
+                showToast('Account created and autosaved', 'success');
+                closeModal(registerModal);
+                resetRegisterForm();
+                renderUsers(searchInput?.value || '', roleFilter?.value || '');
+            });
+
+            auditForm.addEventListener('submit', e => {
+                e.preventDefault();
+                const payload = {
+                    uid: document.getElementById('audit-user-key').value,
+                    name: document.getElementById('audit-name').value.trim(),
+                    role: document.getElementById('audit-role').value,
+                    accountId: document.getElementById('audit-account-id').value.trim(),
+                    status: document.getElementById('audit-status').value,
+                    username: document.getElementById('audit-username').value.trim(),
+                    pin: document.getElementById('audit-password').value.trim(),
+                    dept: document.getElementById('audit-dept').value.trim(),
+                    year: document.getElementById('audit-year').value.trim()
+                };
+
+                const result = adminUpdateManagedUser(payload);
+                if (!result.ok) {
+                    showToast(result.message, 'error');
+                    return;
+                }
+
+                showToast('Account updated successfully', 'success');
+                closeModal(auditModal);
+                renderUsers(searchInput?.value || '', roleFilter?.value || '');
+            });
+
+
+            profileForm.addEventListener('submit', e => {
+                e.preventDefault();
+                const uid = document.getElementById('profile-user-key').value;
+                const updates = {
+                    email: document.getElementById('profile-email').value.trim(),
+                    phone: document.getElementById('profile-phone').value.trim(),
+                    department: document.getElementById('profile-department').value.trim(),
+                    designation: document.getElementById('profile-designation').value.trim(),
+                    roll: document.getElementById('profile-roll').value.trim(),
+                    address: document.getElementById('profile-address').value.trim(),
+                    note: document.getElementById('profile-note').value.trim(),
+                    profileImage: document.getElementById('profile-image').value.trim()
+                };
+                const result = updateUserProfileDetails(uid, updates);
+                if (!result.ok) {
+                    showToast(result.message, 'error');
+                    return;
+                }
+                const users = getUsers();
+                const index = users.findIndex(u => u.uid === uid);
+                if (index !== -1) {
+                    users[index].fineAmount = Math.max(0, Number(document.getElementById('profile-fine').value || 0));
+                    saveUsers(users);
+                    refreshCurrentUserFromStore(uid);
+                }
+                const profileImageFile = document.getElementById('profile-image-file');
+                if (profileImageFile) profileImageFile.value = '';
+                showToast('Profile details saved successfully', 'success');
+                closeModal(profileModal);
+                renderUsers(searchInput?.value || '', roleFilter?.value || '');
+            });
+
+            deleteBtn.addEventListener('click', () => {
+                const uid = document.getElementById('audit-user-key').value;
+                const result = adminDeleteManagedUser(uid);
+                if (!result.ok) {
+                    showToast(result.message, 'error');
+                    return;
+                }
+                showToast('Account removed successfully', 'success');
+                closeModal(auditModal);
+                renderUsers(searchInput?.value || '', roleFilter?.value || '');
+            });
+
+          if (searchInput) {
+    searchInput.addEventListener('input', () => {
+        renderUsers(searchInput.value, roleFilter?.value || '');
+    });
+}
+
+if (roleFilter) {
+    roleFilter.addEventListener('change', () => {
+        renderUsers(searchInput?.value || '', roleFilter.value);
+    });
+}
+
+if (exportUsersExcelBtn) {
+    exportUsersExcelBtn.addEventListener('click', exportCurrentUsersToExcel);
+}
+
+            window.addEventListener('storage', e => {
+    if (!e.key || ['vemu_users', 'vemu_payment_receipts'].includes(e.key)) {
+        renderUsers(searchInput?.value || '', roleFilter?.value || '');
+    }
+});
+
+            document.getElementById('profile-image-file')?.addEventListener('change', event => {
+                const file = event.target.files && event.target.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    showToast('Please select an image file', 'error');
+                    event.target.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const maxSize = 240;
+                        const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
+                        canvas.width = Math.max(1, Math.round(img.width * ratio));
+                        canvas.height = Math.max(1, Math.round(img.height * ratio));
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const result = canvas.toDataURL('image/jpeg', 0.75);
+                        document.getElementById('profile-image').value = result;
+                        const previewImg = document.getElementById('profile-image-preview');
+                        const previewText = document.getElementById('profile-image-text');
+                        previewImg.src = result;
+                        previewImg.style.display = 'block';
+                        previewText.textContent = `${file.name} (optimized)`;
+                    };
+                    img.onerror = function() {
+                        showToast('Could not process selected image', 'error');
+                    };
+                    img.src = String(ev.target.result || '');
+                };
+                reader.readAsDataURL(file);
+            });
+
+            applyRoleOptions();
+renderUsers(searchInput?.value || '', roleFilter?.value || '');
+        });
+            function bindReceiptButtons(scope = document) {
+            scope.querySelectorAll('[data-download-receipt]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const item = getReceipts().find(r => r.receiptId === btn.dataset.downloadReceipt);
+                    if (item) downloadReceiptPdf(item);
+                });
+            });
+        }
+</script>
+</body>
+</html>

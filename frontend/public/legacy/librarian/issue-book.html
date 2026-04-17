@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circulation Hub | VEMU Library</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .main-content { margin-left: var(--sidebar-width); padding: 30px; }
+        .transaction-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+        .scanner-trigger {
+            display:flex; align-items:center; gap:10px; margin-top:10px; flex-wrap:wrap;
+        }
+        .scanner-btn {
+            border:none; cursor:pointer; border-radius:10px; padding:10px 14px; font-weight:600;
+            background: var(--primary-slate); color:#fff; display:inline-flex; align-items:center; gap:8px;
+        }
+        .scanner-status {
+            font-size:0.82rem; color:var(--text-muted);
+        }
+        .scanner-modal {
+            position:fixed; inset:0; background:rgba(15,23,42,0.75); display:none; align-items:center; justify-content:center; z-index:9999; padding:20px;
+        }
+        .scanner-modal.active { display:flex; }
+        .scanner-panel {
+            width:min(92vw, 560px); background:#fff; border-radius:18px; padding:18px; box-shadow:0 18px 50px rgba(0,0,0,0.22);
+        }
+        .scanner-video-wrap {
+            position:relative; width:100%; background:#111827; border-radius:14px; overflow:hidden; min-height:240px;
+        }
+        .scanner-video-wrap video {
+            width:100%; height:320px; object-fit:cover; display:block; background:#000;
+        }
+        .scanner-guide {
+            position:absolute; inset:14% 10%; border:3px solid rgba(255,255,255,0.9); border-radius:14px; box-shadow:0 0 0 9999px rgba(0,0,0,0.2) inset;
+            pointer-events:none;
+        }
+        .scanner-panel-actions {
+            display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:16px; flex-wrap:wrap;
+        }
+        .scanner-help { font-size:0.85rem; color:var(--text-muted); }
+
+    </style>
+</head>
+<body class="compact-page no-auto-dashboard-tools">
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="sidebar-logo">
+            <h3>VEMU Librarian</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="librarian-dashboard.html"><ion-icon name="grid-outline"></ion-icon> Workbench</a></li>
+             <li><a href="add-books.html"><ion-icon name="add-outline"></ion-icon> Add Records</a></li>
+            <li><a href="issue-book.html" class="active"><ion-icon name="swap-horizontal-outline"></ion-icon> New Transaction</a></li>
+            <li><a href="manage-books.html"><ion-icon name="library-outline"></ion-icon> Catalog View</a></li>
+            <li><a href="suggestions.html"><ion-icon name="bulb-outline"></ion-icon> Suggestions</a></li>
+            <li><a href="receipts-history.html"><ion-icon name="receipt-outline"></ion-icon> Receipts History</a></li>
+            <li><a href="manage-users.html"><ion-icon name="people-outline"></ion-icon> Scholar Search</a></li>
+            <li><a href="renewal-requests.html"><ion-icon name="time-outline"></ion-icon> Renewal Requests</a></li>
+            <li style="margin-top: 50px;"><a href="#" id="logout-btn" style="color: #E74C3C;"><ion-icon name="log-out-outline"></ion-icon> Sign Out</a></li>
+        </ul>
+    </aside>
+
+    <div class="dashboard-nav">
+        <div class="nav-left">
+            <h2 style="font-weight: 700; color: var(--primary-slate);">Circulation Control</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Processing institutional lending & item returns</p>
+        </div>
+        <div class="user-profile flex align-center" style="display: flex; align-items: center; gap: 15px;">
+            <div style="text-align: right;">
+                <h4 id="user-display-name">Librarian</h4>
+                <small style="color: var(--accent-copper);">Library Operations</small>
+            </div>
+            <div style="width: 45px; height: 45px; background: var(--bg-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--accent-gold); overflow:hidden;">
+                <ion-icon id="lib-avatar-icon" name="person-circle-outline" style="font-size: 2rem; color: var(--primary-slate);"></ion-icon>
+                <img id="lib-avatar-img" alt="Librarian Profile" style="display:none; width:100%; height:100%; object-fit:cover;">
+            </div>
+        </div>
+    </div><main class="main-content">
+        <div class="transaction-form">
+            <!-- Issue Section -->
+            <div class="glass-card" style="background: white;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
+                    <ion-icon name="arrow-redo-outline" style="font-size: 1.8rem; color: var(--accent-copper);"></ion-icon>
+                    <h3 style="color: var(--primary-slate);">Item Issuance</h3>
+                </div>
+                <form id="issue-form">
+                    <div class="form-group">
+                        <label>Scholar / Faculty ID</label>
+                        <input type="text" id="borrower-id" class="form-control" placeholder="Enter Registry ID / username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Item Accession Number / Barcode</label>
+                        <input type="text" id="issue-book-id" class="form-control" placeholder="Scan Barcode / Enter Book ID" required>
+                        <div class="scanner-trigger">
+                            <button type="button" class="scanner-btn" id="scan-issue-btn"><ion-icon name="camera-outline"></ion-icon> Scan with Camera</button>
+                            <span class="scanner-status">Camera permission will be requested when you start scanning.</span>
+                        </div>
+                    </div>
+                    <div style="background: var(--bg-light); padding: 12px 14px; border-radius: 10px; margin-bottom: 18px;">
+                        <p id="issue-book-preview" style="font-size:0.83rem; color:var(--text-muted);">Scan barcode to view book details instantly.</p>
+                    </div>
+
+
+
+                    <!-- <div class="form-group">
+                        <label>Lending Duration (Days)</label>
+                        <select id="issue-duration" class="form-control">
+                            <option value="15">15 Days (Scholar Standard)</option>
+                            <option value="90">90 Days (Faculty Institutional)</option>
+                            <option value="1">1 Day (Reference Only)</option>
+                        </select>
+                    </div> -->
+
+
+                    <div class="form-group">
+    <label>Lending Duration (Days)</label>
+    <input type="number" id="issue-duration" class="form-control" min="1" step="1" value="15" placeholder="Enter lending days manually" required>
+</div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Authorize Issuance</button>
+                </form>
+            </div>
+
+            <!-- Return Section -->
+            <div class="glass-card" style="background: white;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
+                    <ion-icon name="arrow-undo-outline" style="font-size: 1.8rem; color: #27AE60;"></ion-icon>
+                    <h3 style="color: var(--primary-slate);">Asset Retrieval</h3>
+                </div>
+                <form id="return-form">
+                    <div class="form-group">
+                        <label>Returning User (Username / Scholar ID)</label>
+                        <input type="text" id="return-borrower-id" class="form-control" placeholder="Enter Username / Scholar ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Item Accession Number / Barcode</label>
+                        <input type="text" id="return-book-id" class="form-control" placeholder="Scan Barcode / Enter Book ID" required>
+                        <div class="scanner-trigger">
+                            <button type="button" class="scanner-btn" id="scan-return-btn"><ion-icon name="camera-outline"></ion-icon> Scan with Camera</button>
+                            <span class="scanner-status">Use the rear camera to scan the barcode automatically.</span>
+                        </div>
+                    </div>
+                    <div style="background: var(--bg-light); padding: 12px 14px; border-radius: 10px; margin-bottom: 18px;">
+                        <p id="return-book-preview" style="font-size:0.83rem; color:var(--text-muted);">Return scan will match the issued book and update stock automatically.</p>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600; color: var(--primary-slate);">
+                            <input type="checkbox" id="damage-check" style="width:18px; height:18px; accent-color:#D35400;"> Damage Issue
+                        </label>
+                    </div>
+                    <div class="form-group" id="damage-fine-wrap" style="display:none;">
+                        <label>Damage Fine Amount</label>
+                        <input type="number" id="damage-fine" class="form-control" placeholder="Enter damage fine amount" min="0" step="0.01">
+                    </div>
+                    <div style="background: var(--bg-light); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                        <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">Scanning the item code will automatically calculate overdue fine, and if the book is damaged you can set the damage fine manually. The user's payment QR will display the exact amount.</p>
+                    </div>
+                    <button type="submit" class="btn btn-accent" style="width: 100%; justify-content: center; background: #27AE60;">Process Return</button>
+                </form>
+            </div>
+        </div>
+
+
+
+        <div class="glass-card" style="background: white; margin-top: 30px;">
+            <h3 style="margin-bottom: 20px;">Active Circulation Stream</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Book ID</th>
+                            <th>Barcode No</th>
+                            <th>Scholar ID</th>
+                            <th>Issue Date</th>
+                            <th>Target Return</th>
+                            <th>Fines</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-list">
+                        <tr>
+                            <td>V-1004</td>
+                            <td>BC0000001004</td>
+                            <td>SCH-CSE-102</td>
+                            <td>01 Mar 2026</td>
+                            <td>16 Mar 2026</td>
+                            <td>₹0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+
+    <div class="scanner-modal" id="scanner-modal">
+        <div class="scanner-panel">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px;">
+                <div>
+                    <h3 style="color: var(--primary-slate); margin-bottom:6px;">Barcode Scanner</h3>
+                    <p class="scanner-help" id="scanner-message">Allow camera access, then point the barcode inside the frame.</p>
+                </div>
+                <button type="button" class="scanner-btn" id="scanner-close-btn" style="background:#E74C3C;">Close</button>
+            </div>
+            <div class="scanner-video-wrap">
+                <div id="scanner-region" style="width:100%; min-height:320px; background:#000;"></div>
+                <div class="scanner-guide"></div>
+            </div>
+            <div class="scanner-panel-actions">
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; width:100%;">
+                    <button type="button" class="scanner-btn" id="scanner-start-btn"><ion-icon name="scan-outline"></ion-icon> Start Camera</button>
+                    <button type="button" class="scanner-btn" id="scanner-refresh-btn" style="background:#475569;"><ion-icon name="refresh-outline"></ion-icon> Refresh Cameras</button>
+                    <select id="scanner-device-select" class="form-control" style="max-width:260px; min-width:220px;">
+                        <option value="">Select camera</option>
+                    </select>
+                </div>
+                <span class="scanner-help">Supports laptop, rear, front, USB, and external cameras on <strong>localhost / 127.0.0.1</strong>.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="scanner-modal" id="return-payment-modal">
+        <div class="scanner-panel">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px;">
+                <div>
+                    <h3 style="color: var(--primary-slate); margin-bottom:6px;">Return Fine Payment</h3>
+                    <p class="scanner-help" id="return-payment-message">Pay the exact amount below before completing the return.</p>
+                </div>
+                <button type="button" class="scanner-btn" id="close-return-payment" style="background:#E74C3C;">Close</button>
+            </div>
+            <div style="display:grid; grid-template-columns: 220px 1fr; gap:18px; align-items:center;">
+                <div style="background:var(--bg-light); border-radius:14px; padding:12px; text-align:center;">
+                    <img id="return-payment-qr" alt="Return payment QR" style="width:200px; height:200px; object-fit:contain; background:#fff; border-radius:10px;">
+                    <p id="return-payment-amount" style="margin-top:10px; font-weight:700; color:var(--primary-slate);">Amount: ₹0.00</p>
+                </div>
+                <div>
+                    <div style="background:var(--bg-light); padding:16px; border-radius:12px; margin-bottom:12px;">
+                        <p id="return-payment-book" style="font-size:0.9rem; color:var(--primary-slate); font-weight:600; margin-bottom:6px;">Book: -</p>
+                        <p id="return-payment-user" style="font-size:0.82rem; color:var(--text-muted); margin-bottom:6px;">User: -</p>
+                        <p id="return-payment-breakup" style="font-size:0.82rem; color:var(--text-muted);">Fine breakup: -</p>
+                    </div>
+                    <div style="background:var(--bg-light); padding:12px 14px; border-radius:10px; margin-bottom:12px;">
+                        <div style="font-size:0.85rem; color:var(--text-muted);">UPI ID: <strong style="color:var(--primary-slate);">omkarvinayaka@okaxis</strong></div>
+                        <a id="return-payment-link" href="#" class="btn btn-primary" style="margin-top:10px; display:inline-flex;">Open UPI App</a>
+                    </div>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-bottom:12px;">After successful payment, click the button below to save the receipt in Receipts History, update records, and complete the return.</p>
+                    <button type="button" class="btn btn-accent" id="confirm-return-payment" style="width:100%; justify-content:center;">Payment Completed & Return Book</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/script.js"></script>
+    <script>
+        checkAuth(['admin', 'librarian']);
+        document.getElementById('logout-btn')?.addEventListener('click', logout);
+        function applyLibrarianProfileHeader() {
+            const current = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+            if (!current) return;
+            const full = typeof getUserByUid === 'function' ? (getUserByUid(current.uid) || current) : current;
+            const nameNode = document.getElementById('user-display-name');
+            const img = document.getElementById('lib-avatar-img');
+            const icon = document.getElementById('lib-avatar-icon');
+            if (nameNode) nameNode.textContent = full.name || 'Librarian';
+            const profileImage = full.profileImage || (full.profileDetails && full.profileDetails.profileImage);
+            if (img && profileImage) {
+                img.src = profileImage;
+                img.style.display = 'block';
+                if (icon) icon.style.display = 'none';
+            }
+        }
+
+
+        const issueForm = document.getElementById('issue-form');
+        const returnForm = document.getElementById('return-form');
+        const borrowerInput = document.getElementById('borrower-id');
+        const issueBookInput = document.getElementById('issue-book-id');
+        const durationInput = document.getElementById('issue-duration');
+        const returnBorrowerInput = document.getElementById('return-borrower-id');
+        const returnBookInput = document.getElementById('return-book-id');
+        const damageCheck = document.getElementById('damage-check');
+        const damageFineWrap = document.getElementById('damage-fine-wrap');
+        const damageFineInput = document.getElementById('damage-fine');
+        const transactionsList = document.getElementById('transactions-list');
+        const issuePreview = document.getElementById('issue-book-preview');
+        const returnPreview = document.getElementById('return-book-preview');
+        const scanIssueBtn = document.getElementById('scan-issue-btn');
+        const scanReturnBtn = document.getElementById('scan-return-btn');
+        const scannerModal = document.getElementById('scanner-modal');
+        const scannerMessage = document.getElementById('scanner-message');
+        const scannerStartBtn = document.getElementById('scanner-start-btn');
+        const scannerRefreshBtn = document.getElementById('scanner-refresh-btn');
+        const scannerCloseBtn = document.getElementById('scanner-close-btn');
+        const scannerDeviceSelect = document.getElementById('scanner-device-select');
+        const scannerRegion = document.getElementById('scanner-region');
+        const returnPaymentModal = document.getElementById('return-payment-modal');
+        const returnPaymentQr = document.getElementById('return-payment-qr');
+        const returnPaymentAmount = document.getElementById('return-payment-amount');
+        const returnPaymentBook = document.getElementById('return-payment-book');
+        const returnPaymentUser = document.getElementById('return-payment-user');
+        const returnPaymentBreakup = document.getElementById('return-payment-breakup');
+        const returnPaymentLink = document.getElementById('return-payment-link');
+        const closeReturnPaymentBtn = document.getElementById('close-return-payment');
+        const confirmReturnPaymentBtn = document.getElementById('confirm-return-payment');
+
+        let scannerTargetInput = null;
+        let availableCameras = [];
+        let currentCameraId = '';
+        let html5Scanner = null;
+        let scannerStream = null;
+        let scannerVideo = null;
+        let scannerRunning = false;
+        let detector = null;
+        let detectTimer = null;
+        let pendingReturnPayload = null;
+
+        function parseScanValue(decodedText) {
+            const raw = String(decodedText || '').trim();
+            if (!raw) return '';
+            if (raw.includes('|')) {
+                const parts = raw.split('|').map(item => item.trim()).filter(Boolean);
+                if (parts[1]) return parts[1];
+                if (parts[2]) return parts[2];
+            }
+            return raw;
+        }
+
+        async function requestCameraPermission() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error('Camera access is not available in this browser. Open the project on localhost or 127.0.0.1 in Chrome or Edge.');
+            }
+            const tempStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            tempStream.getTracks().forEach(track => track.stop());
+        }
+
+        async function loadCameraDevices() {
+            await requestCameraPermission();
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            availableCameras = devices.filter(device => device.kind === 'videoinput');
+            scannerDeviceSelect.innerHTML = '';
+            if (!availableCameras.length) {
+                scannerDeviceSelect.innerHTML = '<option value="">No camera found</option>';
+                throw new Error('No camera devices were found on this system.');
+            }
+            availableCameras.forEach((camera, index) => {
+                const option = document.createElement('option');
+                option.value = camera.deviceId;
+                option.textContent = camera.label || `Camera ${index + 1}`;
+                scannerDeviceSelect.appendChild(option);
+            });
+            const preferred = availableCameras.find(cam => /back|rear|environment|usb|external|hd/i.test(cam.label || '')) || availableCameras[0];
+            currentCameraId = currentCameraId && availableCameras.some(cam => cam.deviceId === currentCameraId) ? currentCameraId : preferred.deviceId;
+            scannerDeviceSelect.value = currentCameraId;
+            scannerMessage.textContent = `Camera ready. ${availableCameras.length} camera(s) detected.`;
+        }
+
+        async function stopNativeScanner() {
+            scannerRunning = false;
+            if (detectTimer) {
+                clearInterval(detectTimer);
+                detectTimer = null;
+            }
+            if (scannerVideo) {
+                scannerVideo.pause();
+                scannerVideo.srcObject = null;
+            }
+            if (scannerStream) {
+                scannerStream.getTracks().forEach(track => track.stop());
+            }
+            scannerVideo = null;
+            scannerStream = null;
+            detector = null;
+            scannerRegion.innerHTML = '';
+        }
+
+        async function stopHtml5ScannerOnly() {
+            try {
+                if (html5Scanner) {
+                    const state = html5Scanner.getState ? html5Scanner.getState() : null;
+                    if (state === 2 || state === 1) {
+                        await html5Scanner.stop();
+                    }
+                    await html5Scanner.clear();
+                }
+            } catch (error) {
+                console.warn('Scanner stop warning:', error);
+            }
+            html5Scanner = null;
+        }
+
+        async function stopScanner(closeModal = true) {
+            await stopHtml5ScannerOnly();
+            await stopNativeScanner();
+            if (closeModal) scannerModal.classList.remove('active');
+        }
+
+        async function handleSuccessfulScan(decodedText) {
+            const resolvedValue = parseScanValue(decodedText);
+            if (!resolvedValue || !scannerTargetInput) return;
+            scannerTargetInput.value = resolvedValue;
+            scannerTargetInput.dispatchEvent(new Event('input', { bubbles: true }));
+            scannerMessage.textContent = `Scanned successfully: ${resolvedValue}`;
+            showToast(`Barcode detected: ${resolvedValue}`, 'success');
+            await stopScanner();
+        }
+
+        async function startNativeBarcodeDetector() {
+            if (!('BarcodeDetector' in window)) {
+                throw new Error('Native barcode detector is not supported in this browser.');
+            }
+            const requestedFormats = ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'codabar', 'itf', 'qr_code', 'pdf417', 'data_matrix'];
+            const supported = BarcodeDetector.getSupportedFormats ? await BarcodeDetector.getSupportedFormats() : requestedFormats;
+            const formats = requestedFormats.filter(fmt => supported.includes(fmt));
+            detector = new BarcodeDetector({ formats: formats.length ? formats : supported });
+
+            scannerRegion.innerHTML = '';
+            scannerVideo = document.createElement('video');
+            scannerVideo.setAttribute('playsinline', 'true');
+            scannerVideo.setAttribute('autoplay', 'true');
+            scannerVideo.setAttribute('muted', 'true');
+            scannerVideo.style.width = '100%';
+            scannerVideo.style.height = '360px';
+            scannerVideo.style.objectFit = 'cover';
+            scannerRegion.appendChild(scannerVideo);
+
+            const constraints = {
+                audio: false,
+                video: currentCameraId
+                    ? { deviceId: { exact: currentCameraId }, width: { ideal: 1920 }, height: { ideal: 1080 }, facingMode: 'environment' }
+                    : { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+            };
+
+            scannerStream = await navigator.mediaDevices.getUserMedia(constraints);
+            scannerVideo.srcObject = scannerStream;
+            await scannerVideo.play();
+            scannerRunning = true;
+            scannerMessage.textContent = 'Camera started. Hold the barcode steady and close to the frame.';
+
+            let busy = false;
+            detectTimer = setInterval(async () => {
+                if (!scannerRunning || busy || !scannerVideo || scannerVideo.readyState < 2) return;
+                busy = true;
+                try {
+                    const barcodes = await detector.detect(scannerVideo);
+                    if (barcodes && barcodes.length) {
+                        const value = barcodes[0].rawValue || '';
+                        if (value) {
+                            busy = false;
+                            await handleSuccessfulScan(value);
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Barcode detector warning:', error);
+                }
+                busy = false;
+            }, 250);
+        }
+
+        async function startHtml5Fallback() {
+            if (typeof Html5Qrcode === 'undefined') {
+                throw new Error('Scanner library did not load. Check your internet connection and reload the page.');
+            }
+            scannerRegion.innerHTML = '<div id="scanner-native-region" style="width:100%; min-height:320px; background:#000;"></div>';
+            html5Scanner = new Html5Qrcode('scanner-native-region');
+            await html5Scanner.start(
+                currentCameraId || { facingMode: 'environment' },
+                {
+                    fps: 12,
+                    qrbox: { width: 280, height: 140 },
+                    aspectRatio: 1.7778,
+                    disableFlip: false,
+                    experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+                    formatsToSupport: [
+                        Html5QrcodeSupportedFormats.CODE_128,
+                        Html5QrcodeSupportedFormats.CODE_39,
+                        Html5QrcodeSupportedFormats.CODE_93,
+                        Html5QrcodeSupportedFormats.CODABAR,
+                        Html5QrcodeSupportedFormats.EAN_13,
+                        Html5QrcodeSupportedFormats.EAN_8,
+                        Html5QrcodeSupportedFormats.ITF,
+                        Html5QrcodeSupportedFormats.UPC_A,
+                        Html5QrcodeSupportedFormats.UPC_E,
+                        Html5QrcodeSupportedFormats.PDF_417,
+                        Html5QrcodeSupportedFormats.DATA_MATRIX,
+                        Html5QrcodeSupportedFormats.QR_CODE
+                    ]
+                },
+                async decodedText => handleSuccessfulScan(decodedText),
+                () => {}
+            );
+            scannerRunning = true;
+            scannerMessage.textContent = 'Fallback scanner started. Hold the barcode steady inside the frame.';
+        }
+
+        async function startSelectedCamera() {
+            currentCameraId = scannerDeviceSelect.value || currentCameraId;
+            if (!currentCameraId) {
+                scannerMessage.textContent = 'Select a camera first.';
+                showToast('Select a camera first.', 'error');
+                return;
+            }
+            try {
+                await stopScanner(false);
+                scannerModal.classList.add('active');
+                if ('BarcodeDetector' in window) {
+                    await startNativeBarcodeDetector();
+                } else {
+                    await startHtml5Fallback();
+                }
+            } catch (nativeError) {
+                console.warn('Native scanner failed, trying fallback:', nativeError);
+                try {
+                    await stopScanner(false);
+                    scannerModal.classList.add('active');
+                    await startHtml5Fallback();
+                } catch (fallbackError) {
+                    console.error(fallbackError);
+                    scannerMessage.textContent = fallbackError.message || nativeError.message || 'Unable to start selected camera.';
+                    showToast(scannerMessage.textContent, 'error');
+                }
+            }
+        }
+
+        async function startScannerFor(inputElement) {
+            scannerTargetInput = inputElement;
+            scannerModal.classList.add('active');
+            scannerMessage.textContent = 'Requesting camera permission...';
+            try {
+                await loadCameraDevices();
+                await startSelectedCamera();
+            } catch (error) {
+                console.error(error);
+                scannerMessage.textContent = error.message || 'Unable to access camera scanner.';
+                showToast(scannerMessage.textContent, 'error');
+            }
+        }
+
+        function updateBookPreview(input, target, mode = 'issue') {
+            const book = findBookByScan(input.value.trim());
+            if (!target) return;
+            if (!book) {
+                target.textContent = mode === 'issue' ? 'Scan barcode to view book details instantly.' : 'Return scan will match the issued book and update stock automatically.';
+                return;
+            }
+            target.innerHTML = `<strong>${book.title}</strong> | ID: ${book.id} | Barcode: ${book.barcodeNumber} | ISBN: ${book.isbn || '-'} | Stock: ${book.available}/${book.qty}`;
+        }
+
+        
+
+        function renderTransactions() {
+            const rows = getTransactions().filter(tx => tx.status === 'ISSUED');
+            if (!rows.length) {
+                transactionsList.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">No active transactions.</td></tr>`;
+                return;
+            }
+            transactionsList.innerHTML = rows.map(tx => `
+                <tr>
+                    <td>${tx.bookId}</td>
+                    <td>${tx.barcodeNumber || '-'}</td>
+                    <td>${tx.borrowerId}</td>
+                    <td>${formatDate(tx.issueDate)}</td>
+                    <td>${formatDate(tx.dueDate)}</td>
+                    <td>₹${Number(tx.fine || 0).toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+
+        issueBookInput.addEventListener('input', () => updateBookPreview(issueBookInput, issuePreview, 'issue'));
+        returnBookInput.addEventListener('input', () => updateBookPreview(returnBookInput, returnPreview, 'return'));
+
+        issueForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const result = issueBookToUser(issueBookInput.value.trim(), borrowerInput.value.trim(), durationInput.value);
+            if (!result.ok) {
+                showToast(result.message, 'error');
+                return;
+            }
+            showToast(result.message, 'success');
+            issueForm.reset();
+            updateBookPreview(issueBookInput, issuePreview, 'issue');
+            renderTransactions();
+        });
+
+        damageCheck.addEventListener('change', () => {
+            damageFineWrap.style.display = damageCheck.checked ? 'block' : 'none';
+            if (!damageCheck.checked) damageFineInput.value = '';
+        });
+
+        function openReturnPaymentModal(preview) {
+            pendingReturnPayload = preview;
+            document.getElementById('return-payment-message').textContent = preview.message || 'Pay the exact amount below before completing the return.';
+            returnPaymentAmount.textContent = `Amount: ₹${Number(preview.totalFine || 0).toFixed(2)}`;
+            returnPaymentBook.textContent = `Book: ${preview.tx.bookTitle} (${preview.tx.bookId})`;
+            const borrowerLabel = preview.borrower ? `${preview.borrower.name} (${preview.borrower.username || preview.borrower.accountId || preview.tx.borrowerId})` : (preview.tx.borrowerName || preview.tx.borrowerId || '-');
+            returnPaymentUser.textContent = `User: ${borrowerLabel}`;
+            const breakup = [];
+            if (Number(preview.overdueFine || 0) > 0) breakup.push(`Overdue ₹${Number(preview.overdueFine).toFixed(2)}`);
+            if (Number(preview.damageFine || 0) > 0) breakup.push(`Damage ₹${Number(preview.damageFine).toFixed(2)}`);
+            returnPaymentBreakup.textContent = `Fine breakup: ${breakup.join(' + ') || '₹0.00'}`;
+            applyQrImage(returnPaymentQr, preview.totalFine || 0.01);
+            returnPaymentLink.href = buildUpiPaymentString(preview.totalFine || 0.01);
+            returnPaymentModal.classList.add('active');
+        }
+
+        function closeReturnPaymentModal() {
+            returnPaymentModal.classList.remove('active');
+            pendingReturnPayload = null;
+        }
+
+        returnForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const payload = {
+                borrowerQuery: returnBorrowerInput.value.trim(),
+                isDamaged: damageCheck.checked,
+                damageFine: damageCheck.checked ? damageFineInput.value : 0,
+                requireImmediatePayment: true
+            };
+            const result = returnBookById(returnBookInput.value.trim(), payload);
+            if (result.paymentRequired) {
+                openReturnPaymentModal(result);
+                showToast(result.message, 'error');
+                return;
+            }
+            if (!result.ok) {
+                showToast(result.message, 'error');
+                return;
+            }
+            showToast(result.message, 'success');
+            returnForm.reset();
+            damageFineWrap.style.display = 'none';
+            updateBookPreview(returnBookInput, returnPreview, 'return');
+            renderTransactions();
+        });
+
+        confirmReturnPaymentBtn?.addEventListener('click', () => {
+            if (!pendingReturnPayload) {
+                showToast('No pending payment found for this return.', 'error');
+                return;
+            }
+            const result = returnBookById(returnBookInput.value.trim(), {
+                borrowerQuery: returnBorrowerInput.value.trim(),
+                isDamaged: damageCheck.checked,
+                damageFine: damageCheck.checked ? damageFineInput.value : 0,
+                requireImmediatePayment: true,
+                paymentConfirmed: true
+            });
+            if (!result.ok) {
+                showToast(result.message, 'error');
+                return;
+            }
+            closeReturnPaymentModal();
+            showToast(result.message, 'success');
+            returnForm.reset();
+            damageFineWrap.style.display = 'none';
+            updateBookPreview(returnBookInput, returnPreview, 'return');
+            renderTransactions();
+        });
+
+        scanIssueBtn?.addEventListener('click', () => startScannerFor(issueBookInput));
+        scanReturnBtn?.addEventListener('click', () => startScannerFor(returnBookInput));
+        scannerStartBtn?.addEventListener('click', startSelectedCamera);
+        scannerRefreshBtn?.addEventListener('click', async () => {
+            try {
+                scannerMessage.textContent = 'Refreshing available cameras...';
+                await loadCameraDevices();
+                showToast('Camera list refreshed.', 'success');
+            } catch (error) {
+                console.error(error);
+                scannerMessage.textContent = error.message || 'Unable to refresh camera list.';
+                showToast(scannerMessage.textContent, 'error');
+            }
+        });
+        scannerDeviceSelect?.addEventListener('change', () => {
+            currentCameraId = scannerDeviceSelect.value || '';
+        });
+        scannerCloseBtn?.addEventListener('click', () => { stopScanner(); });
+        closeReturnPaymentBtn?.addEventListener('click', closeReturnPaymentModal);
+        scannerModal?.addEventListener('click', event => {
+            if (event.target === scannerModal) stopScanner();
+        });
+        returnPaymentModal?.addEventListener('click', event => { if (event.target === returnPaymentModal) closeReturnPaymentModal(); });
+        window.addEventListener('beforeunload', () => { stopScanner(false); });
+        window.addEventListener('storage', () => {
+    renderTransactions();
+    renderIssuePageNotifications();
+});
+
+window.addEventListener('storage', renderTransactions);
+renderTransactions();
+    </script>
+</body>
+</html>

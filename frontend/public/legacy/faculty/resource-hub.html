@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Resource Hub | VEMU Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; }
+        .hero-card { background: linear-gradient(135deg, var(--primary-slate), var(--primary-light)); color:white; border-radius:20px; padding:28px 30px; margin-bottom:24px; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+             <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="sidebar-logo">
+            <h3>VEMU Faculty</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="faculty-dashboard.html"><ion-icon name="grid-outline"></ion-icon> Dashboard</a></li>
+            <li><a href="resource-hub.html" class="active"><ion-icon name="library-outline"></ion-icon> Resource Hub</a></li>
+            <li><a href="book-suggestions.html"><ion-icon name="bulb-outline"></ion-icon> Suggestions</a></li>
+            <li><a href="borrowing-history.html"><ion-icon name="time-outline"></ion-icon> History</a></li>
+            <li style="margin-top: 50px;"><a href="#" id="logout-btn" style="color: #E74C3C;"><ion-icon name="log-out-outline"></ion-icon> Log Out</a></li>
+        </ul>
+    </aside>
+    <div class="dashboard-nav">
+        <button class="sidebar-toggle-mobile" id="sidebar-toggle-mobile" type="button" aria-label="Open menu">
+    <ion-icon name="menu-outline"></ion-icon>
+</button>
+        <div class="nav-left">
+            <h2 style="font-weight:700; color:var(--primary-slate);">Faculty Resource Hub</h2>
+            <p style="color:var(--text-muted); font-size:0.9rem;">Separate page for faculty resource browsing</p>
+        </div>
+        <div class="user-profile" style="display:flex; align-items:center; gap:12px;">
+            <div style="text-align:right;"><h4 id="user-display-name">Faculty</h4><small id="resource-hub-meta" style="color:var(--accent-copper);"></small></div>
+        </div>
+    </div>
+    <main class="main-content">
+        <div class="hero-card">
+            <h1 style="margin-bottom:8px;">Research & Reference Access</h1>
+            <p style="opacity:0.88;">Browse titles, search the catalog, and request issue directly from the faculty resource page.</p>
+        </div>
+        <div class="glass-card" style="background:white; margin-bottom:24px;">
+            <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-bottom:16px;">
+                <div>
+                    <h3 style="margin-bottom:4px;">Catalog Search</h3>
+                    <small style="color:var(--text-muted);">Search by title, author, category, ISBN, or book ID</small>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <input id="faculty-book-search" class="form-control" placeholder="Search books..." style="min-width:280px;">
+                    <button class="btn btn-outline" id="faculty-book-reset">Reset</button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Book</th><th>Book ID / ISBN</th><th>Availability</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="faculty-catalog-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <script src="../js/script.js"></script>
+    <script>
+        checkAuth('faculty');
+        document.getElementById('logout-btn')?.addEventListener('click', logout);
+        function renderFacultyCatalog() {
+            const user = getUserByUid(getCurrentUser().uid) || getCurrentUser();
+            document.getElementById('user-display-name').textContent = user.name || 'Faculty';
+            document.getElementById('resource-hub-meta').textContent = `${user.dept || user.profileDetails?.department || 'Department'} - ${user.year || user.profileDetails?.designation || 'Faculty'}`;
+            const query = document.getElementById('faculty-book-search').value.trim().toLowerCase();
+            const books = getBooks().filter(book => {
+                if (!query) return true;
+                return [book.title, book.author, book.category, book.isbn, book.id].join(' ').toLowerCase().includes(query);
+            });
+            const body = document.getElementById('faculty-catalog-body');
+            body.innerHTML = books.length ? books.map(book => `
+                <tr>
+                    <td><strong>${book.title}</strong><br><span style="color:var(--text-muted); font-size:0.75rem;">${book.author || '-'} | ${book.category || '-'}</span></td>
+                    <td>${book.id}<br><span style="color:var(--text-muted); font-size:0.75rem;">${book.isbn || '-'}</span></td>
+                    <td><span class="status-badge ${Number(book.available || 0) > 0 ? 'status-success' : 'status-danger'}">${Number(book.available || 0)} Available</span></td>
+                    <td><button class="btn btn-primary faculty-request-btn" data-bookid="${book.id}" style="padding:7px 11px; font-size:0.72rem;">Request Issue</button></td>
+                </tr>
+            `).join('') : `<tr><td colspan="4" style="text-align:center; padding:18px; color:var(--text-muted);">No books found.</td></tr>`;
+            body.querySelectorAll('.faculty-request-btn').forEach(btn => btn.addEventListener('click', () => {
+                const book = getBooks().find(item => item.id === btn.dataset.bookid);
+                showToast(book ? `Issue request noted for ${book.title}` : 'Book not found', book ? 'success' : 'error');
+            }));
+        }
+        document.getElementById('faculty-book-search').addEventListener('input', renderFacultyCatalog);
+        document.getElementById('faculty-book-reset').addEventListener('click', () => { document.getElementById('faculty-book-search').value = ''; renderFacultyCatalog(); });
+        window.addEventListener('storage', renderFacultyCatalog);
+        window.addEventListener('focus', renderFacultyCatalog);
+        renderFacultyCatalog();
+    </script>
+</body>
+</html>

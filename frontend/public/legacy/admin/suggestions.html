@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suggestions | Admin | VEMU Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; }
+        .compact-page .sidebar-logo { width: 60px; padding: 8px; }
+        .compact-page .sidebar-header h3 { font-size: 1.22rem; }
+        .compact-page .dashboard-nav { padding-top: 12px; padding-bottom: 12px; }
+    </style>
+</head>
+<body class="compact-page">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="sidebar-logo">
+            <h3>VEMU Admin</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="admin-dashboard.html"><ion-icon name="grid-outline"></ion-icon> Dashboard</a></li>
+            <li><a href="add-books.html"><ion-icon name="add-outline"></ion-icon> Add Records</a></li>
+            <li><a href="manage-books.html"><ion-icon name="library-outline"></ion-icon> Inventory State</a></li>
+            <li><a href="manage-users.html"><ion-icon name="people-outline"></ion-icon> User Directory</a></li>
+            <li><a href="issue-book.html"><ion-icon name="swap-horizontal-outline"></ion-icon> Transactions</a></li>
+            <li><a href="suggestions.html" class="active"><ion-icon name="bulb-outline"></ion-icon> Suggestions</a></li>
+            <li><a href="reports.html"><ion-icon name="stats-chart-outline"></ion-icon> Analytics</a></li>
+            <li><a href="receipts-history.html"><ion-icon name="receipt-outline"></ion-icon> Receipts History</a></li>
+            <li><a href="renewal-requests.html"><ion-icon name="time-outline"></ion-icon> Renewal Requests</a></li>
+            <li style="margin-top: 50px;"><a href="#" id="logout-btn" style="color: #E74C3C;"><ion-icon name="log-out-outline"></ion-icon> Terminate Session</a></li>
+        </ul>
+    </aside>
+
+    <div class="dashboard-nav">
+        <button class="sidebar-toggle-mobile" id="sidebar-toggle-mobile" type="button" aria-label="Open menu">
+    <ion-icon name="menu-outline"></ion-icon>
+</button>
+        <div class="nav-left">
+            <h2 style="font-weight:700; color:var(--primary-slate);">Faculty Book Suggestions</h2>
+            <p style="color:var(--text-muted); font-size:0.9rem;">Review faculty requests and add accepted titles into the catalog</p>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="stats-container">
+            <div class="stat-item"><div class="stat-icon"><ion-icon name="albums-outline"></ion-icon></div><div class="stat-info"><h3>Total</h3><p style="font-size:1.8rem; font-weight:700;"><span id="admin-sg-total">0</span></p></div></div>
+            <div class="stat-item"><div class="stat-icon"><ion-icon name="time-outline"></ion-icon></div><div class="stat-info"><h3>Pending</h3><p style="font-size:1.8rem; font-weight:700;"><span id="admin-sg-pending">0</span></p></div></div>
+            <div class="stat-item"><div class="stat-icon"><ion-icon name="checkmark-done-outline"></ion-icon></div><div class="stat-info"><h3>Accepted</h3><p style="font-size:1.8rem; font-weight:700;"><span id="admin-sg-accepted">0</span></p></div></div>
+            <div class="stat-item"><div class="stat-icon"><ion-icon name="close-outline"></ion-icon></div><div class="stat-info"><h3>Rejected</h3><p style="font-size:1.8rem; font-weight:700;"><span id="admin-sg-rejected">0</span></p></div></div>
+        </div>
+
+        <div class="glass-card" style="background:white; margin-bottom:24px;">
+            <div style="display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
+                <div><h3 style="margin:0;">Pending Suggestions</h3><small style="color:var(--text-muted);">Accept, reject, or accept and add to catalog</small></div>
+            </div>
+            <div id="admin-suggestion-pending-list" style="display:grid; gap:12px;"></div>
+        </div>
+
+        <div class="glass-card" style="background:white;">
+            <div style="display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
+                <div><h3 style="margin:0;">Suggestions History</h3><small style="color:var(--text-muted);">Complete student and faculty suggestion trail with status and reviewer details</small></div>
+                <input id="admin-suggestion-search" class="form-control" placeholder="Search suggestions..." style="max-width:280px;">
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr><th>Faculty</th><th>Book</th><th>Edition</th><th>Suggested On</th><th>Status</th><th>Reviewed By</th><th>Catalog</th></tr></thead>
+                    <tbody id="admin-suggestion-history-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/script.js"></script>
+    <script>
+        checkAuth('admin');
+        document.getElementById('logout-btn')?.addEventListener('click', logout);
+        const adminSuggestionSearch = document.getElementById('admin-suggestion-search');
+        function renderAdminSuggestionsPage() {
+            const metrics = getSuggestionMetrics();
+            const all = getBookSuggestions();
+            const pending = all.filter(item => item.status === 'PENDING');
+            const query = String(adminSuggestionSearch?.value || '').trim().toLowerCase();
+            const filtered = all.filter(item => !query || [item.suggesterName, item.suggesterUsername, item.bookName, item.authorName, item.edition, item.status, item.reviewedBy, item.catalogAction].filter(Boolean).join(' ').toLowerCase().includes(query));
+            document.getElementById('admin-sg-total').textContent = metrics.total;
+            document.getElementById('admin-sg-pending').textContent = metrics.pending;
+            document.getElementById('admin-sg-accepted').textContent = metrics.accepted;
+            document.getElementById('admin-sg-rejected').textContent = metrics.rejected;
+            const pendingHost = document.getElementById('admin-suggestion-pending-list');
+            pendingHost.innerHTML = pending.length ? pending.map(item => `
+                <div style="border:1px solid #eef2f7; border-radius:16px; padding:16px 18px; background:#fbfdff;">
+                    <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-start;">
+                        <div>
+                            <div style="font-weight:700; color:var(--primary-slate);">${item.bookName}</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:5px;">${item.authorName} • ${item.edition} • ${item.publisher || 'Publisher NA'}</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:5px;">Suggested by ${item.suggesterName} (${item.suggesterRole || 'user'}) • ${item.suggesterUsername || item.suggesterAccountId || '-'} • ${item.department || '-'} • ${formatDateTime(item.suggestedAt)}</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:5px;">Copies: ${item.requestedCopies || 1} • ISBN: ${item.isbn || '-'} • Reason: ${item.reason || 'General request'}</div>
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button class="btn btn-primary mini-btn" data-admin-suggestion="accept-add" data-id="${item.suggestionId}"><ion-icon name="library-outline"></ion-icon> Accept + Add</button>
+                            <button class="btn btn-accent mini-btn" data-admin-suggestion="accept" data-id="${item.suggestionId}"><ion-icon name="checkmark-outline"></ion-icon> Accept</button>
+                            <button class="btn btn-outline mini-btn" data-admin-suggestion="reject" data-id="${item.suggestionId}"><ion-icon name="close-outline"></ion-icon> Reject</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('') : '<div style="color:var(--text-muted); font-size:0.82rem;">No pending suggestions available.</div>';
+            const body = document.getElementById('admin-suggestion-history-body');
+            body.innerHTML = filtered.length ? filtered.map(item => `
+                <tr>
+                    <td>${item.suggesterName}<div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">${item.suggesterUsername || item.suggesterAccountId || '-'} • ${item.department || '-'}</div></td>
+                    <td><strong style="color:var(--primary-slate);">${item.bookName}</strong><div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">${item.authorName || '-'} • ${item.requestedCopies || 1} copy</div></td>
+                    <td>${item.edition || '-'}</td>
+                    <td>${formatDate(item.suggestedAt)}<div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">${new Date(item.suggestedAt).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12:true })}</div></td>
+                    <td><span class="status-badge ${item.status === 'ACCEPTED' ? 'status-success' : (item.status === 'REJECTED' ? 'status-danger' : 'status-pending')}">${item.status}</span><div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">${item.reviewRemark || '-'}</div></td>
+                    <td>${item.reviewedBy || '-'}<div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">${item.reviewedAt ? formatDate(item.reviewedAt) : '-'}</div></td>
+                    <td>${item.catalogAction || '-'}<div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">${item.catalogBookId || '-'}</div></td>
+                </tr>
+            `).join('') : '<tr><td colspan="7" style="text-align:center; padding:18px; color:var(--text-muted);">No suggestion history found.</td></tr>';
+            pendingHost.querySelectorAll('[data-admin-suggestion]').forEach(btn => btn.addEventListener('click', () => {
+                const mode = btn.dataset.adminSuggestion;
+                const result = reviewBookSuggestion(btn.dataset.id, mode === 'reject' ? 'REJECTED' : 'ACCEPTED', { addToCatalog: mode === 'accept-add' });
+                showToast(result.message, result.ok ? 'success' : 'error');
+                if (result.ok) renderAdminSuggestionsPage();
+            }));
+        }
+        adminSuggestionSearch?.addEventListener('input', renderAdminSuggestionsPage);
+        window.addEventListener('storage', renderAdminSuggestionsPage);
+        window.addEventListener('focus', renderAdminSuggestionsPage);
+        renderAdminSuggestionsPage();
+    </script>
+</body>
+</html>

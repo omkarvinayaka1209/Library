@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard | VEMU Library</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; }
+        .faculty-card {
+            background: linear-gradient(135deg, var(--primary-slate), var(--primary-light));
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    
+        .compact-page .sidebar-logo { width: 60px; padding: 8px; }
+        .compact-page .sidebar-header h3 { font-size: 1.22rem; }
+        .compact-page .dashboard-nav { padding-top: 12px; padding-bottom: 12px; }
+    </style>
+</head>
+<body class="compact-page">
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="sidebar-logo">
+            <h3>VEMU Faculty</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="faculty-dashboard.html" class="active"><ion-icon name="grid-outline"></ion-icon> Dashboard</a></li>
+            <li><a href="resource-hub.html"><ion-icon name="library-outline"></ion-icon> Resource Hub</a></li>
+            <li><a href="book-suggestions.html"><ion-icon name="bulb-outline"></ion-icon> Suggestions</a></li>
+            <li><a href="borrowing-history.html"><ion-icon name="time-outline"></ion-icon> History</a></li>
+            <li style="margin-top: 50px;"><a href="#" id="logout-btn" style="color: #E74C3C;"><ion-icon name="log-out-outline"></ion-icon> Log Out</a></li>
+        </ul>
+    </aside>
+
+    <div class="dashboard-nav">
+        <button class="sidebar-toggle-mobile" id="sidebar-toggle-mobile" type="button" aria-label="Open menu">
+    <ion-icon name="menu-outline"></ion-icon>
+</button>
+        <div class="nav-left">
+            <h2 style="font-weight: 700; color: var(--primary-slate);">Faculty Workspace</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Expert guidance & research support</p>
+        </div>
+        <div class="user-profile flex align-center" style="display: flex; align-items: center; gap: 15px; flex-wrap:wrap; justify-content:flex-end;">
+            <div style="text-align: right;">
+                <h4 id="user-display-name">Dr. B. K. Reddy</h4>
+                <small id="user-role-name" style="color: var(--accent-copper);">Dept of ECE - HOD</small>
+            </div>
+            <div style="width: 45px; height: 45px; background: var(--bg-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--accent-gold); overflow:hidden;">
+                <ion-icon id="faculty-profile-avatar-icon" name="person-circle-outline" style="font-size: 2rem; color: var(--primary-slate);"></ion-icon>
+                <img id="faculty-profile-avatar" alt="Faculty Profile" style="display:none; width:100%; height:100%; object-fit:cover;">
+            </div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div id="faculty-fine-display" style="background: rgba(230, 126, 34, 0.1); color: var(--accent-gold); padding: 6px 12px; border-radius: 18px; font-weight: 600; font-size: 0.75rem;">Fine: ₹0.00</div>
+            <button class="btn btn-accent" id="open-faculty-payment">Pay Fine</button>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="faculty-card">
+            <div>
+                <h1 style="font-family: 'Montserrat', sans-serif;">Scholastic Excellence</h1>
+                <p style="opacity: 0.8; margin-top: 10px;">Access specialized research journals and high-impact publications directly from your portal.</p>
+            </div>
+            <a href="book-suggestions.html" class="btn btn-accent" style="white-space: nowrap; text-decoration:none;">Request New Acquisition</a>
+        </div>
+
+        <div class="stats-container">
+    <div class="stat-item">
+        <div class="stat-icon"><ion-icon name="book-outline"></ion-icon></div>
+        <div class="stat-info">
+            <h3>Borrowed</h3>
+            <p style="font-size: 1.8rem; font-weight: 700;"><span id="faculty-borrowed-count">0</span></p>
+        </div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-icon"><ion-icon name="time-outline"></ion-icon></div>
+        <div class="stat-info">
+            <h3>Pending Renewals</h3>
+            <p style="font-size: 1.8rem; font-weight: 700;"><span id="faculty-renewal-count">0</span></p>
+        </div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-icon"><ion-icon name="checkmark-done-outline"></ion-icon></div>
+        <div class="stat-info">
+            <h3>Returned</h3>
+            <p style="font-size: 1.8rem; font-weight: 700;"><span id="faculty-returned-count">0</span></p>
+        </div>
+    </div>
+</div>
+
+        <div class="glass-card" style="background: white;">
+    <h3 style="margin-bottom: 25px;">Recent Scholastic Activity</h3>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Resource Title</th>
+                    <th>Borrowed On</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="faculty-activity-body"></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="glass-card" style="background:white; margin-top:30px;">
+    <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:18px;">
+        <div>
+            <h3 style="margin:0;">Notifications</h3>
+            <small style="color:var(--text-muted);">Due alerts, renewal updates, and payment reminders</small>
+        </div>
+    </div>
+    <div id="faculty-notification-list" style="display:grid; gap:12px;"></div>
+</div>
+
+
+        <div class="glass-card" style="background:white; margin-top:30px;">
+            <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:18px;">
+                <div>
+                    <h3 style="margin:0;">Suggestion Snapshot</h3>
+                    <small style="color:var(--text-muted);">Track new faculty acquisition requests instantly</small>
+                </div>
+                <a href="book-suggestions.html" class="btn btn-outline" style="text-decoration:none;"><ion-icon name="arrow-forward-outline"></ion-icon> Open Suggestions</a>
+            </div>
+            <div id="faculty-suggestion-snapshot" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:14px;"></div>
+        </div>
+
+        <div class="glass-card" style="background: white; margin-top: 30px;">
+            <h3 style="margin-bottom: 18px;">Profile Details</h3>
+            <div id="faculty-profile-details" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; color: var(--text-muted); font-size:0.86rem;"></div>
+        </div>
+
+        <div class="glass-card" style="background: white; margin-top: 30px;">
+            <h3 style="margin-bottom: 18px;">Mobile Alerts & OTP Verification</h3>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; align-items:end;">
+                <div>
+                    <label style="display:block; font-size:0.78rem; font-weight:600; color:var(--primary-slate); margin-bottom:6px;">Mobile Number</label>
+                    <input type="tel" id="faculty-mobile-number" class="form-control" placeholder="Enter 10-digit mobile number">
+                </div>
+                <div>
+                    <label style="display:block; font-size:0.78rem; font-weight:600; color:var(--primary-slate); margin-bottom:6px;">OTP Code</label>
+                    <input type="text" id="faculty-otp-code" class="form-control" placeholder="Enter OTP">
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-outline" type="button" id="faculty-send-otp-btn"><ion-icon name="paper-plane-outline"></ion-icon> Send OTP</button>
+                    <button class="btn btn-accent" type="button" id="faculty-verify-otp-btn"><ion-icon name="shield-checkmark-outline"></ion-icon> Verify OTP</button>
+                </div>
+            </div>
+            <p style="font-size:0.78rem; color:var(--text-muted); margin-top:12px;" id="faculty-mobile-help">After verification, issue, due, overdue, return, renewal, and fine alerts will be sent to this number.</p>
+        </div>
+
+        <div class="glass-card" style="background: white; margin-top: 30px;">
+            <h3 style="margin-bottom: 18px;">Fine Payment History</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+    <tr>
+        <th>Receipt ID</th>
+        <th>Transaction ID</th>
+        <th>Status</th>
+        <th>Amount</th>
+        <th>UPI ID</th>
+        <th>Paid On</th>
+        <th>Time</th>
+        <th>Action</th>
+    </tr>
+</thead>
+                    <tbody id="faculty-receipt-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal-mask" id="faculty-payment-modal" style="position:fixed; inset:0; background:rgba(15,23,42,0.45); display:none; align-items:center; justify-content:center; padding:18px; z-index:3000;">
+        <div class="modal-card" style="width:min(520px,100%); background:white; border-radius:18px; overflow:hidden; box-shadow: var(--shadow-premium);">
+            <div class="modal-head" style="padding:18px 20px; background: linear-gradient(135deg, var(--primary-slate), var(--primary-light)); color:white; display:flex; justify-content:space-between; align-items:center;">
+                <div><h3 style="font-size:1.05rem;">Faculty Fine Payment</h3><p style="font-size:0.78rem; opacity:0.9; margin-top:4px;">Use the QR below to pay the exact amount</p></div>
+                <button type="button" class="btn btn-outline" id="close-faculty-payment" style="background:white; color:var(--primary-slate); border-color:white;">Close</button>
+            </div>
+            <div style="padding:22px; text-align:center;">
+                <p style="color:var(--text-muted); font-size:0.82rem; margin-bottom:6px;">UPI ID: <strong>omkarvinayaka@okaxis</strong></p>
+                <h3 id="faculty-payment-amount" style="color:var(--primary-slate); margin-bottom:14px;">Amount: ₹0.00</h3>
+                <img id="faculty-payment-qr" alt="Payment QR" style="width:220px; height:220px; border-radius:12px; border:1px solid #EAECEE; object-fit:contain;">
+                <div style="margin:10px 0 14px 0;"><a id="faculty-upi-pay-link" class="btn btn-outline" href="#" target="_blank"><ion-icon name="phone-portrait-outline"></ion-icon> Open UPI App</a></div>
+                <p style="font-size:0.76rem; color:var(--text-muted); margin:14px 0;">After completing the payment, enter the transaction ID and submit the receipt below for verification.</p>
+                <div style="max-width:340px; margin:0 auto 14px auto; text-align:left;">
+                    <label for="faculty-transaction-id" style="display:block; font-size:0.78rem; color:var(--primary-slate); font-weight:600; margin-bottom:6px;">Transaction ID</label>
+                    <div style="display:flex; align-items:center; gap:8px; background:#f8fafc; border:1px solid #d9e2ec; border-radius:12px; padding:0 12px;">
+                        <ion-icon name="receipt-outline" style="color:var(--accent-copper); font-size:1rem;"></ion-icon>
+                        <input id="faculty-transaction-id" class="form-control" placeholder="Enter UPI / bank transaction ID" style="border:none; box-shadow:none; background:transparent; padding:12px 0;">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-accent" id="confirm-faculty-payment"><ion-icon name="checkmark-done-outline"></ion-icon> Mark as Paid</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/script.js"></script>
+<script>
+    checkAuth('faculty');
+    document.getElementById('logout-btn')?.addEventListener('click', logout);
+
+    const facultyPaymentModal = document.getElementById('faculty-payment-modal');
+    const openFacultyPayment = document.getElementById('open-faculty-payment');
+    const closeFacultyPayment = document.getElementById('close-faculty-payment');
+    const confirmFacultyPayment = document.getElementById('confirm-faculty-payment');
+    const facultyTransactionIdInput = document.getElementById('faculty-transaction-id');
+    const facultyMobileInput = document.getElementById('faculty-mobile-number');
+    const facultyOtpInput = document.getElementById('faculty-otp-code');
+    const facultySendOtpBtn = document.getElementById('faculty-send-otp-btn');
+    const facultyVerifyOtpBtn = document.getElementById('faculty-verify-otp-btn');
+
+    function renderFacultyDashboard() {
+        const current = getCurrentUser();
+        const user = getUserByUid(current.uid) || current;
+        const profile = user.profileDetails || {};
+
+        document.getElementById('user-display-name').textContent = user.name || 'Faculty';
+        document.getElementById('user-role-name').textContent =
+            `${profile.department || user.dept || 'Department'} - ${profile.designation || user.year || 'Faculty'}`;
+
+        const img = document.getElementById('faculty-profile-avatar');
+        const icon = document.getElementById('faculty-profile-avatar-icon');
+
+        if (user.profileImage || profile.profileImage) {
+            img.src = user.profileImage || profile.profileImage;
+            img.style.display = 'block';
+            icon.style.display = 'none';
+        } else {
+            img.style.display = 'none';
+            icon.style.display = 'block';
+        }
+
+        document.getElementById('faculty-fine-display').textContent =
+            `Fine: ₹${Number(user.fineAmount || 0).toFixed(2)}`;
+
+        document.getElementById('faculty-payment-amount').textContent =
+            `Amount: ₹${Number(user.fineAmount || 0).toFixed(2)}`;
+
+        applyQrImage(
+            document.getElementById('faculty-payment-qr'),
+            Number(user.fineAmount || 0.01)
+        );
+
+        document.getElementById('faculty-upi-pay-link').href =
+            buildUpiPaymentString(Number(user.fineAmount || 0.01));
+
+        document.getElementById('faculty-profile-details').innerHTML = `
+            <div><strong>Account ID:</strong> ${user.accountId || '-'}</div>
+            <div><strong>Department:</strong> ${profile.department || user.dept || '-'}</div>
+            <div><strong>Designation:</strong> ${profile.designation || user.year || '-'}</div>
+            <div><strong>Email:</strong> ${profile.email || '-'}</div>
+            <div><strong>Phone:</strong> ${profile.phone || '-'}</div>
+            <div><strong>Phone Status:</strong> ${(profile.phoneVerified || user.phoneVerified) ? 'Verified' : 'Not Verified'}</div>
+            <div><strong>Address:</strong> ${profile.address || '-'}</div>
+        `;
+
+        renderFacultyMobilePanel(user);
+
+        const suggestions = getFacultySuggestions(user.uid);
+        const snapshot = document.getElementById('faculty-suggestion-snapshot');
+
+        if (snapshot) {
+            const pendingCount = suggestions.filter(item => item.status === 'PENDING').length;
+            const acceptedCount = suggestions.filter(item => item.status === 'ACCEPTED').length;
+            const lastSuggestion = suggestions[0];
+
+            snapshot.innerHTML = `
+                <div class="stat-item" style="margin:0;">
+                    <div class="stat-icon"><ion-icon name="albums-outline"></ion-icon></div>
+                    <div class="stat-info">
+                        <h3>Total Suggestions</h3>
+                        <p style="font-size:1.7rem; font-weight:700;">${suggestions.length}</p>
+                    </div>
+                </div>
+                <div class="stat-item" style="margin:0;">
+                    <div class="stat-icon"><ion-icon name="time-outline"></ion-icon></div>
+                    <div class="stat-info">
+                        <h3>Pending Review</h3>
+                        <p style="font-size:1.7rem; font-weight:700;">${pendingCount}</p>
+                    </div>
+                </div>
+                <div class="stat-item" style="margin:0;">
+                    <div class="stat-icon"><ion-icon name="checkmark-done-outline"></ion-icon></div>
+                    <div class="stat-info">
+                        <h3>Accepted</h3>
+                        <p style="font-size:1.7rem; font-weight:700;">${acceptedCount}</p>
+                    </div>
+                </div>
+                <div class="stat-item" style="margin:0;">
+                    <div class="stat-icon"><ion-icon name="book-outline"></ion-icon></div>
+                    <div class="stat-info">
+                        <h3>Latest Suggestion</h3>
+                        <p style="font-size:0.92rem; font-weight:700; line-height:1.4;">
+                            ${lastSuggestion ? lastSuggestion.bookName : 'No suggestions yet'}
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        const history = getUserTransactionHistory(user.uid);
+
+        const issued = history.filter(item =>
+            String(item.status || '').toUpperCase() === 'ISSUED'
+        );
+
+        const returned = history.filter(item =>
+            String(item.status || '').toUpperCase() === 'RETURNED'
+        );
+
+        const pendingRenewals = getRenewalRequests().filter(item =>
+            item.userUid === user.uid &&
+            String(item.status || '').toUpperCase() === 'PENDING'
+        );
+
+        const borrowedCountNode = document.getElementById('faculty-borrowed-count');
+        const renewalCountNode = document.getElementById('faculty-renewal-count');
+        const returnedCountNode = document.getElementById('faculty-returned-count');
+
+        if (borrowedCountNode) borrowedCountNode.textContent = issued.length;
+        if (renewalCountNode) renewalCountNode.textContent = pendingRenewals.length;
+        if (returnedCountNode) returnedCountNode.textContent = returned.length;
+
+        const activityBody = document.getElementById('faculty-activity-body');
+
+        if (activityBody) {
+            activityBody.innerHTML = issued.length ? issued.map(item => {
+                const today = new Date();
+                const due = new Date(item.dueDate);
+                const diff = Math.ceil((due - today) / 86400000);
+
+                let status = 'Active';
+
+                if (diff < 0) status = 'Overdue';
+                else if (diff <= 2) status = 'Due Soon';
+                else if (item.isRenewed || item.renewedAt) status = 'Extended';
+
+                return `
+                    <tr>
+                        <td>${item.bookTitle || '-'}</td>
+                        <td>${formatDate(item.issueDate || item.issueAt)}</td>
+                        <td>${formatDate(item.dueDate)}</td>
+                        <td>${status}</td>
+                        <td>
+                            <button
+                                class="btn btn-outline faculty-renew-btn"
+                                data-title="${String(item.bookTitle || '').replace(/"/g, '&quot;')}"
+                                style="padding:7px 11px; font-size:0.7rem;"
+                            >
+                                Request Renewal
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('') : `
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:18px; color:var(--text-muted);">
+                        No books issued
+                    </td>
+                </tr>
+            `;
+        }
+
+        const notificationHost = document.getElementById('faculty-notification-list');
+        if (notificationHost) {
+            const storedNotifications = getNotifications()
+    .filter(item => {
+        const scope = String(item.scope || '').toLowerCase();
+        return scope === 'global' || scope === String(user.uid).toLowerCase() || scope === 'faculty';
+    })
+    .map(item => item.message);
+
+const liveNotifications = [
+    ...pendingRenewals.map(item => `Renewal request pending for ${item.bookTitle || 'book'}.`),
+    ...issued.filter(item => {
+        const diffDays = Math.ceil((new Date(item.dueDate) - new Date()) / 86400000);
+        return diffDays <= 2;
+    }).map(item => `${item.bookTitle || 'Book'} is due on ${formatDate(item.dueDate)}.`),
+    ...(Number(user.fineAmount || 0) > 0
+        ? [`Pending fine payment of ₹${Number(user.fineAmount || 0).toFixed(2)} is available in your account.`]
+        : [])
+];
+
+const facultyNotifications = [...new Set([...liveNotifications, ...storedNotifications])];
+
+            notificationHost.innerHTML = facultyNotifications.length ? facultyNotifications.map(text => `
+                <div class="notification-item" style="display:flex; gap:10px; align-items:flex-start; background:#f8fafc; border:1px solid #eef2f7; border-radius:14px; padding:14px;">
+                    <ion-icon name="notifications-outline" style="color: var(--accent-copper); font-size:1rem; margin-top:2px;"></ion-icon>
+                    <div style="color:var(--text-muted); font-size:0.82rem;">${text}</div>
+                </div>
+            `).join('') : `
+                <div style="color:var(--text-muted); font-size:0.82rem;">No new notifications available.</div>
+            `;
+        }
+
+        document.querySelectorAll('.faculty-renew-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const result = requestRenewalForCurrentUser(btn.dataset.title);
+                showToast(result.message, result.ok ? 'success' : 'error');
+                if (result.ok) renderFacultyDashboard();
+            });
+        });
+
+        const rows = getReceiptsForUser(user.uid);
+        const tbody = document.getElementById('faculty-receipt-body');
+
+        if (tbody) {
+            tbody.innerHTML = rows.length ? rows.map(item => `
+                <tr>
+                    <td>${item.receiptId}</td>
+                    <td>${item.transactionId || '-'}</td>
+                    <td>
+                        <span class="status-badge ${item.verificationStatus === 'RECEIVED' ? 'status-success' : (item.verificationStatus === 'NOT_RECEIVED' ? 'status-danger' : 'status-pending')}">
+                            ${item.verificationStatus || 'PENDING'}
+                        </span>
+                    </td>
+                    <td>₹${Number(item.amount || 0).toFixed(2)}</td>
+                    <td>${item.upiId || '-'}</td>
+                    <td>${formatDate(item.paidAt)}</td>
+                    <td>${new Date(item.paidAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true })}</td>
+                    <td>
+                        ${String(item.verificationStatus || '').toUpperCase() === 'RECEIVED'
+                            ? `<button class="btn btn-outline mini-btn" data-download-receipt="${item.receiptId}"><ion-icon name="print-outline"></ion-icon> Print / PDF</button>`
+                            : `<span style="font-size:0.72rem; color:var(--text-muted); font-weight:600;">Waiting for approval</span>`}
+                    </td>
+                </tr>
+            `).join('') : `
+                <tr>
+                    <td colspan="8" style="text-align:center; padding:18px; color:var(--text-muted);">
+                        No payment receipts available.
+                    </td>
+                </tr>
+            `;
+        }
+
+        bindReceiptButtons(document);
+    }
+
+    function renderFacultyMobilePanel(user = null) {
+        const current = user || (getUserByUid(getCurrentUser().uid) || getCurrentUser());
+        const profile = current.profileDetails || {};
+        const activeField = document.activeElement;
+
+        if (facultyMobileInput && activeField !== facultyMobileInput) {
+            facultyMobileInput.value = profile.phone || current.phone || '';
+        }
+
+        if (facultyOtpInput && activeField !== facultyOtpInput) {
+            facultyOtpInput.value = activeField === facultyOtpInput ? facultyOtpInput.value : '';
+        }
+
+        const verified = Boolean(profile.phoneVerified || current.phoneVerified);
+        const verifiedAt = profile.phoneVerifiedAt || current.phoneVerifiedAt || '';
+        const helpLabel = document.getElementById('faculty-mobile-help');
+
+        if (helpLabel) {
+            helpLabel.textContent = verified
+                ? `Mobile number verified${verifiedAt ? ' on ' + formatDateTime(verifiedAt) : ''}. Alerts are active for this number.`
+                : 'Save the correct number and verify it with OTP before alerts can be sent.';
+        }
+    }
+
+    function bindReceiptButtons(scope = document) {
+        scope.querySelectorAll('[data-download-receipt]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = getReceipts().find(r => r.receiptId === btn.dataset.downloadReceipt);
+                if (item) downloadReceiptPdf(item);
+            });
+        });
+    }
+
+    openFacultyPayment?.addEventListener('click', () => {
+        if (facultyTransactionIdInput) facultyTransactionIdInput.value = '';
+        facultyPaymentModal.style.display = 'flex';
+    });
+
+    closeFacultyPayment?.addEventListener('click', () => {
+        facultyPaymentModal.style.display = 'none';
+    });
+
+    facultyPaymentModal?.addEventListener('click', e => {
+        if (e.target === facultyPaymentModal) facultyPaymentModal.style.display = 'none';
+    });
+
+    confirmFacultyPayment?.addEventListener('click', () => {
+        const result = markFinePaidForCurrentUser({
+            transactionId: facultyTransactionIdInput?.value.trim() || ''
+        });
+
+        if (!result.ok) {
+            showToast(result.message, 'error');
+            return;
+        }
+
+        showToast(result.message, 'success');
+        facultyPaymentModal.style.display = 'none';
+        renderFacultyDashboard();
+    });
+
+    facultySendOtpBtn?.addEventListener('click', async () => {
+        const current = getUserByUid(getCurrentUser().uid) || getCurrentUser();
+        const result = await sendOtpForUser(current.uid, facultyMobileInput?.value || '');
+        showToast(result.message, result.ok ? 'success' : 'error');
+        renderFacultyMobilePanel(getUserByUid(getCurrentUser().uid) || getCurrentUser());
+    });
+
+    facultyVerifyOtpBtn?.addEventListener('click', async () => {
+        const current = getUserByUid(getCurrentUser().uid) || getCurrentUser();
+        const result = await verifyOtpForUser(current.uid, facultyOtpInput?.value || '');
+        showToast(result.message, result.ok ? 'success' : 'error');
+        renderFacultyDashboard();
+    });
+
+    window.addEventListener('storage', renderFacultyDashboard);
+    window.addEventListener('focus', renderFacultyDashboard);
+  window.__facultyDashboardTimer && clearInterval(window.__facultyDashboardTimer);
+window.__facultyDashboardTimer = setInterval(renderFacultyDashboard, 3000);
+
+    renderFacultyDashboard();
+</script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty History | VEMU Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>.main-content { margin-left: var(--sidebar-width); padding: 40px; }</style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="sidebar-logo">
+            <h3>VEMU Faculty</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="faculty-dashboard.html"><ion-icon name="grid-outline"></ion-icon> Dashboard</a></li>
+            <li><a href="resource-hub.html"><ion-icon name="library-outline"></ion-icon> Resource Hub</a></li>
+            <li><a href="book-suggestions.html"><ion-icon name="bulb-outline"></ion-icon> Suggestions</a></li>
+            <li><a href="borrowing-history.html" class="active"><ion-icon name="time-outline"></ion-icon> History</a></li>
+            <li style="margin-top: 50px;"><a href="#" id="logout-btn" style="color: #E74C3C;"><ion-icon name="log-out-outline"></ion-icon> Log Out</a></li>
+        </ul>
+    </aside>
+    <div class="dashboard-nav">
+        <button class="sidebar-toggle-mobile" id="sidebar-toggle-mobile" type="button" aria-label="Open menu">
+    <ion-icon name="menu-outline"></ion-icon>
+</button>
+        <div class="nav-left">
+            <h2 style="font-weight:700; color:var(--primary-slate);">Faculty History</h2>
+            <p style="color:var(--text-muted); font-size:0.9rem;">Books taken, returned, and fine payments with date and time</p>
+        </div>
+        <div class="user-profile" style="display:flex; align-items:center; gap:12px;">
+            <div style="text-align:right;"><h4 id="user-display-name">Faculty</h4><small id="history-meta" style="color:var(--accent-copper);"></small></div>
+        </div>
+    </div>
+    <main class="main-content">
+        <div class="stats-container">
+            <div class="stat-item"><div class="stat-icon"><ion-icon name="book-outline"></ion-icon></div><div class="stat-info"><h3>Total Borrowed</h3><p style="font-size:1.8rem; font-weight:700;"><span id="history-borrowed-count">0</span></p></div></div>
+            <div class="stat-item"><div class="stat-icon"><ion-icon name="checkmark-done-outline"></ion-icon></div><div class="stat-info"><h3>Total Returned</h3><p style="font-size:1.8rem; font-weight:700;"><span id="history-returned-count">0</span></p></div></div>
+            <div class="stat-item"><div class="stat-icon"><ion-icon name="cash-outline"></ion-icon></div><div class="stat-info"><h3>Fine Payments</h3><p style="font-size:1.8rem; font-weight:700;"><span id="history-fine-count">0</span></p></div></div>
+        </div>
+        <div class="glass-card" style="background:white; margin-bottom:24px;">
+            <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
+                <div><h3 style="margin-bottom:4px;">Book Transaction History</h3><small style="color:var(--text-muted);">Shows taken and returned books with time details</small></div>
+                <input id="faculty-history-search" class="form-control" placeholder="Search book history..." style="min-width:280px;">
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Book Title</th><th>Taken On</th><th>Due Date</th><th>Returned On</th><th>Status</th><th>Fine</th></tr>
+                    </thead>
+                    <tbody id="faculty-history-body"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="glass-card" style="background:white;">
+            <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
+                <div><h3 style="margin-bottom:4px;">Fine Payment History</h3><small style="color:var(--text-muted);">Includes payment completion time</small></div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Receipt ID</th><th>Transaction ID</th><th>Book / Note</th><th>Amount</th><th>UPI ID</th><th>Paid On</th><th>Completed Time</th></tr>
+                    </thead>
+                    <tbody id="faculty-fine-history-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <script src="../js/script.js"></script>
+    <script>
+        checkAuth('faculty');
+        document.getElementById('logout-btn')?.addEventListener('click', logout);
+        function renderFacultyHistory() {
+            const current = getCurrentUser();
+            const user = getUserByUid(current.uid) || current;
+            document.getElementById('user-display-name').textContent = user.name || 'Faculty';
+            document.getElementById('history-meta').textContent = `${user.dept || user.profileDetails?.department || 'Department'} - ${user.year || user.profileDetails?.designation || 'Faculty'}`;
+            const search = document.getElementById('faculty-history-search').value.trim().toLowerCase();
+            const rows = getUserTransactionHistory(user.uid).filter(item => !search || [item.bookTitle, item.bookId, item.status].join(' ').toLowerCase().includes(search));
+            document.getElementById('history-borrowed-count').textContent = rows.length;
+            document.getElementById('history-returned-count').textContent = rows.filter(item => item.status === 'RETURNED').length;
+            const body = document.getElementById('faculty-history-body');
+            body.innerHTML = rows.length ? rows.map(item => `
+                <tr>
+                    <td>${item.bookTitle || '-'}</td>
+                    <td>${formatDateTime(item.issueAt || item.issueDate)}</td>
+                    <td>${formatDate(item.dueDate)}</td>
+                    <td>${item.returnedAt ? formatDateTime(item.returnedAt) : '-'}</td>
+                    <td><span class="status-badge ${item.status === 'RETURNED' ? 'status-success' : 'status-pending'}">${item.status || '-'}</span></td>
+                    <td>₹${Number(item.fine || 0).toFixed(2)}</td>
+                </tr>
+            `).join('') : `<tr><td colspan="8" style="text-align:center; padding:18px; color:var(--text-muted);">No borrowing history available.</td></tr>`;
+            const receipts = getFineReceiptsForUser(user.uid);
+            document.getElementById('history-fine-count').textContent = receipts.length;
+            const fineBody = document.getElementById('faculty-fine-history-body');
+            fineBody.innerHTML = receipts.length ? receipts.map(item => `
+                <tr>
+                    <td>${item.receiptId}</td>
+                    <td>${item.transactionId || '-'}</td>
+                    <td>${item.bookTitle || item.note || '-'}</td>
+                    <td>₹${Number(item.amount || 0).toFixed(2)}</td>
+                    <td>${item.upiId || '-'}</td>
+                    <td>${formatDate(item.paidAt)}</td>
+                    <td>${new Date(item.paidAt).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', hour12:true})}</td>
+                </tr>
+            `).join('') : `<tr><td colspan="8" style="text-align:center; padding:18px; color:var(--text-muted);">No fine payment history available.</td></tr>`;
+        }
+        document.getElementById('faculty-history-search').addEventListener('input', renderFacultyHistory);
+        window.addEventListener('storage', renderFacultyHistory);
+        window.addEventListener('focus', renderFacultyHistory);
+        renderFacultyHistory();
+    
+        function bindReceiptButtons(scope = document) {
+            scope.querySelectorAll('[data-download-receipt]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const item = getReceipts().find(r => r.receiptId === btn.dataset.downloadReceipt);
+                    if (item) downloadReceiptPdf(item);
+                });
+            });
+        }
+</script>
+</body>
+</html>

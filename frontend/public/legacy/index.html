@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VEMU Library | Knowledge. Innovation. Excellence.</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .hero-premium {
+            height: 95vh;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.7)), 
+                        url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 100;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            line-height: 1;
+            margin-bottom: 30px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            background: linear-gradient(to right, #fff, #CBD5E1);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .hero-content p {
+            font-size: clamp(1rem, 3vw, 1.4rem);
+            max-width: 700px;
+            margin-bottom: 50px;
+            opacity: 0.9;
+            line-height: 1.6;
+            color: #E2E8F0;
+        }
+
+        .hero-glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 30px;
+            display: inline-block;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-header h2 {
+            font-size: 3.5rem;
+            color: var(--primary-slate);
+            margin-bottom: 20px;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: -1px;
+        }
+
+        .section-header .divider {
+            width: 100px;
+            height: 6px;
+            background: linear-gradient(to right, var(--accent-copper), var(--accent-gold));
+            margin: 0 auto;
+            border-radius: 20px;
+        }
+
+        /* Nav Premium */
+        nav {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            padding: 15px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 3000;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        nav.scrolled {
+            padding: 10px 0;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--primary-slate);
+            font-weight: 800;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links a {
+            position: relative;
+            padding: 5px 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-copper);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Premium Buttons */
+        .btn-premium-glow {
+            position: relative;
+            padding: 15px 34px;
+            background: linear-gradient(135deg, var(--accent-copper), #e67e22);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 15px 35px rgba(211, 84, 0, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-premium-glow:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 45px rgba(211, 84, 0, 0.4);
+        }
+
+        .btn-premium-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-premium-glow:hover::before {
+            left: 100%;
+        }
+
+        .hero-premium {
+            min-height: 100vh;
+            padding-top: 110px;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(211,84,0,0.28), transparent 26%),
+                radial-gradient(circle at 85% 18%, rgba(245,158,11,0.20), transparent 22%),
+                linear-gradient(135deg, rgba(15, 23, 42, 0.90), rgba(30, 41, 59, 0.84)),
+                url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .hero-shell {
+            display: block;
+            max-width: 900px;
+        }
+
+        .hero-glass {
+            width: 100%;
+            max-width: 820px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 24px 80px rgba(15,23,42,0.38);
+        }
+
+        .hero-chip-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .hero-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #f8fafc;
+            font-size: 0.92rem;
+            font-weight: 600;
+        }
+
+        .hero-chip ion-icon { font-size: 1.1rem; color: var(--accent-gold); }
+
+        .hero-side-panel {
+            display: none;
+        }
+
+        .hero-side-card {
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.14);
+            backdrop-filter: blur(16px);
+            border-radius: 28px;
+            padding: 22px;
+            color: white;
+            box-shadow: 0 18px 55px rgba(15,23,42,0.25);
+        }
+
+        .hero-live-time {
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .hero-live-date {
+            color: rgba(255,255,255,0.82);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-size: 0.82rem;
+        }
+
+        .hero-side-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .hero-mini-stat {
+            padding: 18px;
+            border-radius: 22px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .hero-mini-stat span {
+            display: block;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.72);
+            margin-bottom: 10px;
+        }
+
+        .hero-mini-stat strong {
+            font-size: 1.65rem;
+            color: #fff;
+            letter-spacing: -0.03em;
+        }
+
+        .hero-marquee {
+            margin-top: 22px;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .hero-marquee-item {
+            padding: 12px 16px;
+            border-radius: 16px;
+            background: rgba(15,23,42,0.34);
+            border: 1px solid rgba(255,255,255,0.10);
+            font-size: 0.92rem;
+        }
+
+        .stats-intensive {
+            display: none;
+        }
+
+        .stats-intensive .container {
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.96));
+            border: 1px solid rgba(226,232,240,0.9);
+            border-radius: 26px;
+            padding: 28px 26px;
+            box-shadow: 0 20px 55px rgba(15,23,42,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-copper), var(--accent-gold));
+        }
+
+        .stat-box .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .stat-box h2 {
+            margin: 0 0 8px;
+            font-size: clamp(2rem, 4vw, 2.7rem);
+            color: var(--primary-slate);
+        }
+
+        .stat-box p {
+            margin: 0;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .home-live-ribbon {
+            padding: 20px 0 8px;
+            background: linear-gradient(180deg, #ffffff, #f8fafc);
+        }
+
+        .live-ribbon-card {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            padding: 22px;
+            border-radius: 26px;
+            background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,41,59,0.92));
+            color: white;
+            box-shadow: 0 24px 60px rgba(15,23,42,0.14);
+        }
+
+        .live-ribbon-item {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            padding: 12px 4px;
+        }
+
+        .live-ribbon-item ion-icon {
+            font-size: 1.6rem;
+            color: var(--accent-gold);
+        }
+
+        .live-ribbon-item strong {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .live-ribbon-item span {
+            color: rgba(255,255,255,0.68);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1080px) {
+            .hero-shell { grid-template-columns: 1fr; }
+            .hero-side-panel { order: -1; }
+            .stats-intensive .container,
+            .live-ribbon-card { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        }
+
+        @media (max-width: 768px) {
+            .hero-premium { padding-top: 90px; }
+            .hero-glass, .hero-side-card { padding: 22px; border-radius: 24px; }
+            .hero-side-grid,
+            .stats-intensive .container,
+            .live-ribbon-card { grid-template-columns: 1fr !important; }
+            .hero-content h1 { margin-bottom: 20px; }
+        }
+
+        /* Compact home page tuning */
+        .hero-premium { min-height: 82vh; }
+        .hero-glass { max-width: 760px; padding: 34px; border-radius: 26px; }
+        .hero-content h1 { font-size: clamp(2.5rem, 5.6vw, 4.2rem); margin-bottom: 22px; }
+        .hero-content p { font-size: clamp(0.95rem, 2.1vw, 1.08rem); margin-bottom: 32px; max-width: 580px; }
+        .hero-chip { padding: 8px 12px; font-size: 0.75rem; }
+        .hero-side-card { padding: 20px; border-radius: 22px; }
+        .hero-live-time { font-size: clamp(1.8rem, 4vw, 2.6rem); }
+        .hero-mini-stat strong { font-size: 1.45rem; }
+        .hero-mini-stat span { font-size: 0.76rem; }
+        .stats-intensive { padding: 28px 0 36px; margin-top: -48px; position: relative; z-index: 5; }
+        .stats-intensive .container { gap: 14px !important; max-width: 980px; }
+        .stat-box { padding: 18px 16px; min-height: 128px; border-radius: 18px; }
+        .stat-box h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); margin: 6px 0 2px; }
+        .stat-box p { font-size: 0.84rem; }
+        .stat-top span { font-size: 0.72rem; }
+        .stat-top ion-icon { font-size: 1rem; }
+
+
+    </style>
+</head>
+<body>
+
+
+    <nav>
+        <div class="container nav-container">
+            <a href="index.html" class="nav-logo" id="main-logo-link">
+                <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" style="height: 50px;" id="nav-logo">
+                <span>VEMU <span style="color: var(--accent-copper);">Library</span></span>
+            </a>
+
+            <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Open navigation">
+    <ion-icon name="menu-outline"></ion-icon>
+</button>
+
+
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="about-library.html">About Library</a></li>
+                <li><a href="digital-library.html">Digital Resources</a></li>
+                <li><a href="https://vemu.org" target="_blank">College Website</a></li>
+            </ul>
+            <a href="login.html" class="btn btn-primary">Portal Login</a>
+        </div>
+    </nav>
+
+    <header class="hero-premium">
+        <div class="container hero-shell">
+            <div class="hero-content animate-fade">
+                <div class="hero-glass reveal">
+                    <div class="hero-chip-row">
+                        <!-- <div class="hero-chip"><ion-icon name="sparkles-outline"></ion-icon> Intelligent Library Portal</div> -->
+                        <div class="hero-chip"><ion-icon name="school-outline"></ion-icon> VEMU Institute of Technology</div>
+                    </div>
+                    <h4 style="color: var(--accent-gold); text-transform: uppercase; letter-spacing: 6px; font-weight: 700; margin-bottom: 20px; font-size: 0.9rem;">NEXT-GEN SCHOLASTIC EXPERIENCE</h4>
+                    <h1>Research, Reading <br> and Real-Time Access</h1>
+                    <p>Google can bring you back 100,000 answers. But a librarian can bring you back the right one.</p>
+                    <div style="display: flex; gap: 18px; flex-wrap: wrap; align-items:center;">
+                        <a href="login.html" class="btn-premium-glow">
+                            <ion-icon name="key-outline" style="font-size: 1.5rem;"></ion-icon>
+                            Access Portal
+                        </a>
+                        <a href="digital-library.html" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.32); padding: 15px 28px; border-radius: 15px; backdrop-filter: blur(10px); background: rgba(255,255,255,0.06);">
+                            Explore Catalog
+                        </a>
+                    </div>
+                </div>
+            </div>
+        <div class="hero-decoration" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 160px; background: linear-gradient(to top, #f8fafc, transparent);"></div>
+    </header>
+
+
+
+    <!-- Resource Hub -->
+
+    <section class="eresources" style="background: #fafafa; border-top: 1px solid #eee;">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>Elite Digital Resources</h2>
+                <div class="divider"></div>
+                <p style="margin-top: 20px; color: var(--text-muted);">Directly integrated with global academic repositories for 24/7 research.</p>
+            </div>
+            <div class="news-grid">
+                <div class="er-item reveal" style="transition-delay: 0.1s;">
+                    <ion-icon name="globe-outline"></ion-icon>
+                    <h3>IEEE Xplore</h3>
+                    <p>Technological research from IEEE journals & conferences.</p>
+                    <a href="digital-library.html" class="btn btn-link">Access Node</a>
+                </div>
+                <div class="er-item reveal" style="transition-delay: 0.2s;">
+                    <ion-icon name="server-outline"></ion-icon>
+                    <h3>DELNET</h3>
+                    <p>Resource sharing networked with 5000+ libraries worldwide.</p>
+                    <a href="digital-library.html" class="btn btn-link">Access Node</a>
+                </div>
+                <div class="er-item reveal" style="transition-delay: 0.3s;">
+                    <ion-icon name="videocam-outline"></ion-icon>
+                    <h3>NPTEL</h3>
+                    <p>Exclusive course material from IITs and IISc experts.</p>
+                    <a href="digital-library.html" class="btn btn-link">Access Node</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Professional Testimonials -->
+    <section style="padding: 100px 0; background: var(--primary-slate); color: white;">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2 style="color: white;">Scholastic Feedback</h2>
+                <div class="divider" style="background: var(--accent-gold);"></div>
+            </div>
+            <div class="news-grid" id="scholastic-feedback-list">
+                <!-- <div class="glass-card reveal" style="padding: 30px; border-radius: 20px; color: var(--text-dark);">
+                    <p style="font-style: italic; opacity: 0.8; margin-bottom: 20px;">"The digital library is a game changer for my research work. The IEEE access is seamless."</p>
+                    <h4 style="color: var(--accent-gold);">Ravi Teja</h4>
+                    <span style="font-size: 0.8rem; opacity: 0.8;">M.Tech Scholar</span>
+                </div>
+                <div class="glass-card reveal" style="padding: 30px; border-radius: 20px; transition-delay: 0.2s; color: var(--text-dark);">
+                    <p style="font-style: italic; opacity: 0.8; margin-bottom: 20px;">"A true sanctuary for engineers. The environment is perfect for long study sessions."</p>
+                    <h4 style="color: var(--accent-gold);">Anjali Sharma</h4>
+                    <span style="font-size: 0.8rem; opacity: 0.8;">B.Tech CSE</span>
+                </div> -->
+                <div class="glass-card reveal" style="padding: 30px; border-radius: 20px; transition-delay: 0.4s; color: var(--text-dark);">
+                    <p style="font-style: italic; opacity: 0.8; margin-bottom: 20px;">"VEMU's library system is by far the most organized and professional I've used."</p>
+                    <h4 style="color: var(--accent-gold);">Dr. NagaRaj</h4>
+                    <span style="font-size: 0.8rem; opacity: 0.8;">HOD, Mechanical Eng.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="pattern-mesh">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-desc">
+                    <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="footer-logo">
+                    <p style="color: rgba(255,255,255,0.6); margin-top: 20px;">VEMU Institute of Technology - Transforming traditional knowledge into digital wisdom. Authorized Library Control Hub.</p>
+                    <div class="social-icons">
+                        <a href="https://www.facebook.com/vemu.org/" target="_blank" rel="noopener noreferrer" aria-label="VEMU Facebook"><ion-icon name="logo-facebook"></ion-icon></a>
+                        <a href="https://www.instagram.com/vemuitchittoor/" target="_blank" rel="noopener noreferrer" aria-label="VEMU Instagram"><ion-icon name="logo-instagram"></ion-icon></a>
+                        <a href="https://www.youtube.com/@vemuitchittoor" target="_blank" rel="noopener noreferrer" aria-label="VEMU YouTube"><ion-icon name="logo-youtube"></ion-icon></a>
+                        <a href="https://in.linkedin.com/school/vemuofficial/" target="_blank" rel="noopener noreferrer" aria-label="VEMU LinkedIn"><ion-icon name="logo-linkedin"></ion-icon></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Institutional</h4>
+                    <ul>
+                        <!-- <li><a href="index.html">Live Status</a></li> -->
+                        <li><a href="about-library.html">Staff Registry</a></li>
+                        <li><a href="digital-library.html">Research Hub</a></li>
+                        <li><a href="login.html">Portal Gate</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Academics</h4>
+                    <ul>
+                        <li><a href="https://vemu.org/" target="_blank" rel="noopener noreferrer">Programs & Departments</a></li>
+                        <li><a href="https://vemu.org/academic-calendar" target="_blank" rel="noopener noreferrer">Academic Calendar</a></li>
+                        <li><a href="https://vemu.org/regulations" target="_blank" rel="noopener noreferrer">Regulations</a></li>
+                        <li><a href="https://vemu.org/syllabus" target="_blank" rel="noopener noreferrer">Syllabus</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="https://ieeexplore.ieee.org">IEEE Xplore</a></li>
+                        <li><a href="http://www.delnet.in">DELNET</a></li>
+                        <li><a href="https://nptel.ac.in">NPTEL</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Reach Us</h4>
+                    <ul style="color: rgba(255,255,255,0.6);">
+                        <li><ion-icon name="location-outline"></ion-icon> P. Kothakota, Chittoor</li>
+                        <li><ion-icon name="call-outline"></ion-icon> +91 88866 61108</li>
+                        <li><ion-icon name="mail-outline"></ion-icon> support@vemu.org</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="text-align: center; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); font-size: 0.8rem;">
+                © 2026 VEMU Institute of Technology . Final Release 2.5
+            </div>
+        </div>
+    </footer>
+
+    <!-- Core Script -->
+    <script src="js/script.js"></script>
+    <script>
+        // Logo Fallback Specific for Nav
+        const logoImg = document.getElementById('nav-logo');
+        if (logoImg) {
+            logoImg.onerror = function() {
+                this.style.display = 'none';
+                const fallback = document.createElement('span');
+                fallback.innerHTML = '<ion-icon name="library" style="color:#D35400; font-size: 2rem; vertical-align: middle;"></ion-icon>';
+                this.parentElement.prepend(fallback);
+            };
+        }
+    </script>
+</body>
+</html>

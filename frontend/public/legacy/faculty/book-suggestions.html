@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Suggestions | VEMU Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; }
+        .compact-page .sidebar-logo { width: 60px; padding: 8px; }
+        .compact-page .sidebar-header h3 { font-size: 1.22rem; }
+        .compact-page .dashboard-nav { padding-top: 12px; padding-bottom: 12px; }
+        .suggestion-highlight {
+            background: linear-gradient(135deg, var(--primary-slate), var(--primary-light));
+            color: white; padding: 34px; border-radius: 22px; margin-bottom: 26px;
+            display:grid; grid-template-columns: 1.4fr 1fr; gap:22px; align-items:center;
+        }
+        @media (max-width: 900px) { .suggestion-highlight { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body class="compact-page">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="sidebar-logo">
+            <h3>VEMU Faculty</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="faculty-dashboard.html"><ion-icon name="grid-outline"></ion-icon> Dashboard</a></li>
+            <li><a href="resource-hub.html"><ion-icon name="library-outline"></ion-icon> Resource Hub</a></li>
+            <li><a href="book-suggestions.html" class="active"><ion-icon name="bulb-outline"></ion-icon> Suggestions</a></li>
+            <li><a href="borrowing-history.html"><ion-icon name="time-outline"></ion-icon> History</a></li>
+            <li style="margin-top: 50px;"><a href="#" id="logout-btn" style="color: #E74C3C;"><ion-icon name="log-out-outline"></ion-icon> Log Out</a></li>
+        </ul>
+    </aside>
+
+    <div class="dashboard-nav">
+        <button class="sidebar-toggle-mobile" id="sidebar-toggle-mobile" type="button" aria-label="Open menu">
+    <ion-icon name="menu-outline"></ion-icon>
+</button>
+        <div class="nav-left">
+            <h2 style="font-weight:700; color:var(--primary-slate);">Faculty Suggestions Desk</h2>
+            <p style="color:var(--text-muted); font-size:0.9rem;">Recommend new books, editions, and reference titles for the library</p>
+        </div>
+        <div style="text-align:right;">
+            <h4 id="faculty-suggestion-user">Faculty</h4>
+            <small id="faculty-suggestion-meta" style="color:var(--accent-copper);"></small>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <section class="suggestion-highlight">
+            <div>
+                <h1 style="font-size:2rem; margin-bottom:10px;">Recommend the next best book for VEMU</h1>
+                <p style="opacity:0.88; line-height:1.7;">Faculty can send complete book details to the librarian and admin. The same workflow is also available for students. Every suggestion is stored with date, time, status, reviewer details, and catalog action.</p>
+            </div>
+            <div class="glass-card" style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.14); color:white;">
+                <div style="display:grid; grid-template-columns:repeat(2, minmax(120px,1fr)); gap:14px;">
+                    <div><div style="font-size:0.8rem; opacity:0.85;">Total</div><div id="faculty-suggestion-total" style="font-size:1.8rem; font-weight:700;">0</div></div>
+                    <div><div style="font-size:0.8rem; opacity:0.85;">Pending</div><div id="faculty-suggestion-pending" style="font-size:1.8rem; font-weight:700;">0</div></div>
+                    <div><div style="font-size:0.8rem; opacity:0.85;">Accepted</div><div id="faculty-suggestion-accepted" style="font-size:1.8rem; font-weight:700;">0</div></div>
+                    <div><div style="font-size:0.8rem; opacity:0.85;">Rejected</div><div id="faculty-suggestion-rejected" style="font-size:1.8rem; font-weight:700;">0</div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card" style="background:white; margin-bottom:26px;">
+            <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:center; margin-bottom:18px;">
+                <div>
+                    <h3 style="margin:0;">Suggest New Book</h3>
+                    <small style="color:var(--text-muted);">Provide the full book details for review and catalog addition</small>
+                </div>
+                <div style="font-size:0.78rem; color:var(--text-muted);">Required: book name, author name, edition</div>
+            </div>
+            <form id="faculty-suggestion-form">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
+                    <div><label>Book Name</label><input class="form-control" id="s-book-name" placeholder="Enter book name"></div>
+                    <div><label>Author Name</label><input class="form-control" id="s-author-name" placeholder="Enter author name"></div>
+                    <div><label>Edition</label><input class="form-control" id="s-edition" placeholder="Example: 4th Edition"></div>
+                    <div><label>Publisher</label><input class="form-control" id="s-publisher" placeholder="Enter publisher"></div>
+                    <div><label>Category / Department</label><input class="form-control" id="s-category" placeholder="CSE / ECE / General"></div>
+                    <div><label>ISBN</label><input class="form-control" id="s-isbn" placeholder="Enter ISBN"></div>
+                    <div><label>Requested Copies</label><input class="form-control" id="s-copies" type="number" min="1" value="1"></div>
+                    <div><label>Need / Reason</label><input class="form-control" id="s-reason" placeholder="Why should this book be added?"></div>
+                </div>
+                <div style="margin-top:14px;">
+                    <label>Additional Notes</label>
+                    <textarea class="form-control" id="s-notes" rows="4" placeholder="Any syllabus relevance, lab use, or reference value"></textarea>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:18px; flex-wrap:wrap;">
+                    <button type="reset" class="btn btn-outline">Clear</button>
+                    <button type="submit" class="btn btn-accent"><ion-icon name="send-outline"></ion-icon> Send Suggestion</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="glass-card" style="background:white;">
+            <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:center; margin-bottom:18px;">
+                <div>
+                    <h3 style="margin:0;">My Suggestion History</h3>
+                    <small style="color:var(--text-muted);">Track pending, accepted, rejected, and added-to-catalog updates</small>
+                </div>
+                <input id="faculty-suggestion-search" class="form-control" placeholder="Search suggestion history..." style="max-width:280px;">
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Book</th><th>Author</th><th>Edition</th><th>Copies</th><th>Suggested On</th><th>Status</th><th>Reviewed By</th><th>Catalog</th>
+                        </tr>
+                    </thead>
+                    <tbody id="faculty-suggestion-history-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="../js/script.js"></script>
+    <script>
+        checkAuth('faculty');
+        document.getElementById('logout-btn')?.addEventListener('click', logout);
+
+        const suggestionForm = document.getElementById('faculty-suggestion-form');
+        const suggestionSearch = document.getElementById('faculty-suggestion-search');
+
+        function renderFacultySuggestionsPage() {
+            const current = getCurrentUser();
+            const user = getUserByUid(current.uid) || current;
+            const list = getFacultySuggestions(user.uid);
+            const filtered = list.filter(item => {
+                const query = String(suggestionSearch?.value || '').trim().toLowerCase();
+                if (!query) return true;
+                return [item.bookName, item.authorName, item.edition, item.publisher, item.status, item.reviewedBy, item.catalogAction].filter(Boolean).join(' ').toLowerCase().includes(query);
+            });
+            const metrics = {
+                total: list.length,
+                pending: list.filter(item => item.status === 'PENDING').length,
+                accepted: list.filter(item => item.status === 'ACCEPTED').length,
+                rejected: list.filter(item => item.status === 'REJECTED').length
+            };
+            document.getElementById('faculty-suggestion-user').textContent = user.name || 'Faculty';
+            document.getElementById('faculty-suggestion-meta').textContent = `${user.accountId || user.username || '-'} • ${user.dept || user.profileDetails?.department || 'Department'}`;
+            document.getElementById('faculty-suggestion-total').textContent = metrics.total;
+            document.getElementById('faculty-suggestion-pending').textContent = metrics.pending;
+            document.getElementById('faculty-suggestion-accepted').textContent = metrics.accepted;
+            document.getElementById('faculty-suggestion-rejected').textContent = metrics.rejected;
+            const body = document.getElementById('faculty-suggestion-history-body');
+            body.innerHTML = filtered.length ? filtered.map(item => `
+                <tr>
+                    <td><strong style="color:var(--primary-slate);">${item.bookName}</strong><div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">${item.category || 'General'}</div></td>
+                    <td>${item.authorName || '-'}</td>
+                    <td>${item.edition || '-'}</td>
+                    <td>${item.requestedCopies || 1}</td>
+                    <td>${formatDate(item.suggestedAt)}<div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">${new Date(item.suggestedAt).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12:true })}</div></td>
+                    <td><span class="status-badge ${item.status === 'ACCEPTED' ? 'status-success' : (item.status === 'REJECTED' ? 'status-danger' : 'status-pending')}">${item.status}</span><div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">${item.reviewRemark || 'Awaiting review'}</div></td>
+                    <td>${item.reviewedBy || '-'}<div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">${item.reviewedAt ? formatDate(item.reviewedAt) : '-'}</div></td>
+                    <td>${item.catalogAction ? `${item.catalogAction}<div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">${item.catalogBookId || '-'}</div>` : '-'}</td>
+                </tr>
+            `).join('') : '<tr><td colspan="8" style="text-align:center; padding:18px; color:var(--text-muted);">No suggestions found.</td></tr>';
+        }
+
+        suggestionForm?.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const result = submitFacultySuggestion({
+                bookName: document.getElementById('s-book-name').value,
+                authorName: document.getElementById('s-author-name').value,
+                edition: document.getElementById('s-edition').value,
+                publisher: document.getElementById('s-publisher').value,
+                category: document.getElementById('s-category').value,
+                isbn: document.getElementById('s-isbn').value,
+                requestedCopies: document.getElementById('s-copies').value,
+                reason: document.getElementById('s-reason').value,
+                additionalNotes: document.getElementById('s-notes').value
+            });
+            showToast(result.message, result.ok ? 'success' : 'error');
+            if (result.ok) {
+                suggestionForm.reset();
+                document.getElementById('s-copies').value = 1;
+                renderFacultySuggestionsPage();
+            }
+        });
+        suggestionSearch?.addEventListener('input', renderFacultySuggestionsPage);
+        window.addEventListener('storage', renderFacultySuggestionsPage);
+        window.addEventListener('focus', renderFacultySuggestionsPage);
+        renderFacultySuggestionsPage();
+    </script>
+</body>
+</html>

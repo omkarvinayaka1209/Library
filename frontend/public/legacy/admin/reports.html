@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholastic Analytics | VEMU Library</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; }
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 30px;
+        }
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 15px;
+            height: 300px;
+            padding: 20px;
+            border-bottom: 2px solid var(--bg-light);
+            justify-content: space-around;
+        }
+        .bar {
+            width: 40px;
+            background: var(--primary-slate);
+            border-radius: 8px 8px 0 0;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+        .bar:hover {
+            background: var(--accent-copper);
+            transform: scaleX(1.1);
+        }
+        .bar::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+    
+        .compact-page .sidebar-logo { width: 60px; padding: 8px; }
+        .compact-page .sidebar-header h3 { font-size: 1.22rem; }
+        .compact-page .dashboard-nav { padding-top: 12px; padding-bottom: 12px; }
+    </style>
+</head>
+<body class="compact-page">
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="sidebar-logo">
+            <h3>VEMU Admin</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="admin-dashboard.html"><ion-icon name="grid-outline"></ion-icon> Dashboard</a></li>
+            <li><a href="add-books.html"><ion-icon name="add-outline"></ion-icon> Add Records</a></li>
+            <li><a href="manage-books.html"><ion-icon name="library-outline"></ion-icon> Inventory State</a></li>
+            <li><a href="manage-users.html"><ion-icon name="people-outline"></ion-icon> User Directory</a></li>
+            <li><a href="issue-book.html"><ion-icon name="swap-horizontal-outline"></ion-icon> Transactions</a></li>
+            <li><a href="suggestions.html"><ion-icon name="bulb-outline"></ion-icon> Suggestions</a></li>
+            <li><a href="reports.html" class="active"><ion-icon name="stats-chart-outline"></ion-icon> Analytics</a></li>
+            <li><a href="receipts-history.html"><ion-icon name="receipt-outline"></ion-icon> Receipts History</a></li>
+            <li><a href="renewal-requests.html"><ion-icon name="time-outline"></ion-icon> Renewal Requests</a></li>
+            <li style="margin-top: 50px;"><a href="#" id="logout-btn" style="color: #E74C3C;"><ion-icon name="log-out-outline"></ion-icon> Terminate Session</a></li>
+        </ul>
+    </aside>
+
+    <div class="dashboard-nav">
+        <button class="sidebar-toggle-mobile" id="sidebar-toggle-mobile" type="button" aria-label="Open menu">
+    <ion-icon name="menu-outline"></ion-icon>
+</button>
+        <div class="nav-left">
+            <h2 style="font-weight: 700; color: var(--primary-slate);">Library Analytics</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Original-data overview of circulation and usage</p>
+        </div>
+        <button class="btn btn-primary" onclick="window.print()"><ion-icon name="print-outline"></ion-icon> Export Report</button>
+    </div>
+
+    <main class="main-content">
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-icon"><ion-icon name="trending-up-outline"></ion-icon></div>
+                <div class="stat-info">
+                    <h3>Monthly Issue Rate</h3>
+                    <p id="growth-monthly" style="font-size: 1.8rem; font-weight: 700;">0%</p>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon" style="color: var(--accent-gold); background: rgba(230,126,34,0.1);"><ion-icon name="star-outline"></ion-icon></div>
+                <div class="stat-info">
+                    <h3>Collection Coverage</h3>
+                    <p id="peak-efficiency" style="font-size: 1.8rem; font-weight: 700;">0%</p>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><ion-icon name="briefcase-outline"></ion-icon></div>
+                <div class="stat-info">
+                    <h3>Return Rate</h3>
+                    <p id="asset-recovery" style="font-size: 1.8rem; font-weight: 700;">0%</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3 style="margin-bottom: 30px; color: var(--primary-slate);">Monthly Circulation Overview</h3>
+            <div class="bar-chart" id="monthly-circulation-chart"></div>
+        </div>
+        </div>
+
+        <div class="glass-card" style="background: white;">
+            <h3 style="margin-bottom: 20px;">Department-wise Usage Summary</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Borrowers</th>
+                            <th>Books</th>
+                            <th>Usage Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="domain-rows">
+                        <tr>
+                            <td>Computer Science & Eng.</td>
+                            <td>1,240</td>
+                            <td>8,540</td>
+                            <td><div style="width: 100px; height: 8px; background: #eee; border-radius: 4px;"><div style="width: 85%; height: 100%; background: var(--accent-copper); border-radius: 4px;"></div></div></td>
+                        </tr>
+                        <tr>
+                            <td>Electronics & Comm. Eng.</td>
+                            <td>980</td>
+                            <td>7,200</td>
+                            <td><div style="width: 100px; height: 8px; background: #eee; border-radius: 4px;"><div style="width: 72%; height: 100%; background: var(--accent-gold); border-radius: 4px;"></div></div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/script.js"></script>
+    <script>
+        checkAuth(['admin', 'librarian']);
+        document.getElementById('logout-btn')?.addEventListener('click', logout);
+
+        const report = getLibraryReportData();
+        const domainRows = document.getElementById('domain-rows');
+        const totalCirculation = report.activeIssues + report.returnedCount || 1;
+
+        document.getElementById('growth-monthly').textContent = `${Math.max(4, Math.round((report.activeIssues / Math.max(1, report.totalTitles)) * 100))}%`;
+        document.getElementById('peak-efficiency').textContent = `${Math.min(100, Math.round((report.totalTitles / Math.max(1, report.totalManagedUsers)) * 100))}%`;
+        document.getElementById('asset-recovery').textContent = `${Math.min(100, Math.round((report.returnedCount / totalCirculation) * 100))}%`;
+
+        const categories = Object.entries(report.byCategory);
+        const monthlyChart = document.getElementById('monthly-circulation-chart');
+        const monthlyData = getMonthlyCirculationData();
+        monthlyChart.innerHTML = monthlyData.map((item, index) => {
+            const maxValue = Math.max(...monthlyData.map(entry => entry.count), 1);
+            const height = Math.max(12, Math.round((item.count / maxValue) * 100));
+            const tone = index === monthlyData.length - 1 ? 'background: var(--accent-copper);' : '';
+            return `<div class="bar" style="height:${height}%; ${tone}" data-label="${item.label}"></div>`;
+        }).join('');
+
+        if (!categories.length) {
+            domainRows.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:24px; color:var(--text-muted);">No report data found.</td></tr>`;
+        } else {
+            domainRows.innerHTML = categories.map(([name, count]) => {
+                const utilization = Math.min(100, Math.round((count / Math.max(1, report.totalTitles)) * 100));
+                const borrowers = Math.max(1, Math.round((count / Math.max(1, report.totalTitles)) * report.totalManagedUsers));
+                return `
+                    <tr>
+                        <td>${name}</td>
+                        <td>${borrowers}</td>
+                        <td>${count}</td>
+                        <td><div style="width: 100px; height: 8px; background: #eee; border-radius: 4px;"><div style="width: ${utilization}%; height: 100%; background: var(--accent-copper); border-radius: 4px;"></div></div></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

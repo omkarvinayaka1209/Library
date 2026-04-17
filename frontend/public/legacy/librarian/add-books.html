@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Scholastic Item | VEMU Library</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="sidebar-logo">
+            <h3>VEMU Librarian</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="librarian-dashboard.html"><ion-icon name="grid-outline"></ion-icon> Workbench</a></li>
+            <li><a href="add-books.html" class="active"><ion-icon name="add-outline"></ion-icon> Add Records</a></li>
+            <li><a href="issue-book.html"><ion-icon name="swap-horizontal-outline"></ion-icon> New Transaction</a></li>
+            <li><a href="manage-books.html"><ion-icon name="library-outline"></ion-icon> Catalog View</a></li>
+            <li><a href="suggestions.html"><ion-icon name="bulb-outline"></ion-icon> Suggestions</a></li>
+            <li><a href="receipts-history.html"><ion-icon name="receipt-outline"></ion-icon> Receipts History</a></li>
+            <li><a href="manage-users.html"><ion-icon name="people-outline"></ion-icon> Scholar Search</a></li>
+            <li><a href="renewal-requests.html"><ion-icon name="time-outline"></ion-icon> Renewal Requests</a></li>
+            <li style="margin-top: 50px;"><a href="#" id="logout-btn" style="color: #E74C3C;"><ion-icon name="log-out-outline"></ion-icon> Sign Out</a></li>
+        </ul>
+    </aside>
+
+    <div class="dashboard-nav">
+        <div class="nav-left">
+            <h2 style="font-weight: 700; color: var(--primary-slate);">Inventory Acquisition</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Register new scholastic assets into the ecosystem</p>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="glass-card" style="background: white; max-width: 900px; margin: 0 auto;">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
+                <ion-icon name="bookmark-outline" style="font-size: 2rem; color: var(--accent-copper);"></ion-icon>
+                <h3 style="color: var(--primary-slate);">Scholastic Item Specification</h3>
+            </div>
+            
+            <form id="add-book-form">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                    <div class="form-group">
+                        <label>Item Nomenclature (Title)</label>
+                        <input type="text" id="book-title" class="form-control" placeholder="e.g. Advanced Thermodynamics" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Primary Author</label>
+                        <input type="text" id="book-author" class="form-control" placeholder="e.g. Dr. Richard P. Feynman" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Accession Number / ISBN</label>
+                        <input type="text" id="book-isbn" class="form-control" placeholder="e.g. 978-0131103627" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Intellectual Category</label>
+                        <select id="book-category" class="form-control" required>
+                            <option value="">Select Domain</option>
+                            <option value="CSE">Computer Science</option>
+                            <option value="ECE">Electronics &amp; Communication</option>
+                            <option value="EEE">Electrical &amp; Electronics</option>
+                            <option value="Mechanical">Mechanical Engineering</option>
+                            <option value="Civil">Civil Engineering</option>
+                            <option value="Diploma">Diploma</option>
+                            <option value="AI&DS">AI &amp; Data Science</option>
+                            <option value="MBA">Management Studies</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Inventory Quantity</label>
+                        <input type="number" id="book-quantity" class="form-control" value="1" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Publication House</label>
+                        <input type="text" id="book-publisher" class="form-control" placeholder="e.g. Pearson Education">
+                    </div>
+                    <div class="form-group">
+                        <label>Barcode Number (optional)</label>
+                        <input type="text" id="book-barcode" class="form-control" placeholder="Auto-generated if left empty">
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Bibliographic Brief (Description)</label>
+                    <textarea class="form-control" rows="4" placeholder="Detailed abstract of the resource..."></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px;">
+                    <button type="reset" class="btn btn-outline">Clear Fields</button>
+                    <button type="submit" class="btn btn-accent">Commit to Database</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="../js/script.js"></script>
+    <script>
+        checkAuth(['admin', 'librarian']);
+        const form = document.getElementById('add-book-form');
+        document.getElementById('logout-btn')?.addEventListener('click', logout);
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const payload = {
+                title: document.getElementById('book-title').value.trim(),
+                author: document.getElementById('book-author').value.trim(),
+                isbn: document.getElementById('book-isbn').value.trim(),
+                category: document.getElementById('book-category').value,
+                qty: document.getElementById('book-quantity').value,
+                publisher: document.getElementById('book-publisher').value.trim(),
+                barcodeNumber: document.getElementById('book-barcode').value.trim(),
+                digitalCopyPrice: 50
+            };
+            const result = addBookRecord(payload);
+            if (!result.ok) {
+                showToast(result.message, 'error');
+                return;
+            }
+            showToast(`Book added with ID ${result.book.id} | Barcode ${result.book.barcodeNumber}`, 'success');
+            form.reset();
+            document.getElementById('book-category').value = '';
+            document.getElementById('book-quantity').value = '1';
+        });
+    </script>
+</body>
+</html>

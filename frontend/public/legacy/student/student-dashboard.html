@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | VEMU Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 28px;
+        }
+
+        .search-area,
+        .section-card {
+            background: white;
+            padding: 22px;
+            border-radius: 16px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .search-area {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-input-group .form-control {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .availability-badge,
+        .status-chip {
+            padding: 5px 10px;
+            border-radius: 18px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .status-available { background: rgba(39, 174, 96, 0.1); color: #27AE60; }
+        .status-low { background: rgba(230, 126, 34, 0.1); color: #E67E22; }
+        .status-overdue { background: rgba(231, 76, 60, 0.12); color: #E74C3C; }
+        .status-soon { background: rgba(230, 126, 34, 0.12); color: #D35400; }
+        .status-clear { background: rgba(39, 174, 96, 0.12); color: #27AE60; }
+
+        .notification-banner {
+            background: linear-gradient(90deg, var(--primary-slate), #34495e);
+            color: white;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border-left: 4px solid var(--accent-gold);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .quick-card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: var(--shadow-soft);
+            transition: var(--transition-smooth);
+            border-bottom: 4px solid var(--accent-copper);
+        }
+
+        .quick-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-premium);
+        }
+
+        .quick-card h4 {
+            color: var(--primary-slate);
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .quick-card p {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            margin-bottom: 10px;
+        }
+
+        .mini-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 22px;
+            margin-bottom: 22px;
+        }
+
+        .notification-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #f8fafb;
+            border: 1px solid #eef2f7;
+        }
+
+        .notification-item ion-icon {
+            color: var(--accent-copper);
+            font-size: 1rem;
+            margin-top: 2px;
+        }
+
+        .student-profile-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .profile-pill {
+            background: rgba(230, 126, 34, 0.1);
+            color: var(--accent-copper);
+            padding: 6px 12px;
+            border-radius: 24px;
+            font-size: 0.74rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 992px) {
+            .main-content {
+                margin-left: 0;
+                padding: 18px;
+            }
+
+            .mini-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 14px;
+            }
+
+            .search-area,
+            .section-card,
+            .glass-card {
+                padding: 16px !important;
+                border-radius: 14px;
+            }
+
+            .notification-banner {
+                padding: 12px;
+            }
+
+            .dashboard-nav .nav-left h2 {
+                font-size: 1rem;
+            }
+
+            .dashboard-nav .nav-left p {
+                font-size: 0.72rem !important;
+            }
+
+            .search-input-group {
+                flex-direction: column;
+            }
+
+            .search-input-group .form-control {
+                min-width: 100%;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .student-profile-box {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            table {
+                min-width: 700px;
+            }
+
+            th, td {
+                padding: 10px 10px;
+                font-size: 0.76rem;
+            }
+        }
+    
+        .compact-page .sidebar-logo { width: 60px; padding: 8px; }
+        .compact-page .sidebar-header h3 { font-size: 1.22rem; }
+        .compact-page .dashboard-nav { padding-top: 12px; padding-bottom: 12px; }
+    </style>
+</head>
+<body class="compact-page">
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="sidebar-logo">
+            <h3>VEMU Student</h3>
+        </div>
+        <nav class="sidebar-menu">
+    <a href="#dashboard-home" class="active">
+        <ion-icon name="grid-outline"></ion-icon>
+        <span>Dashboard Home</span>
+    </a>
+
+    <a href="#catalog">
+        <ion-icon name="search-outline"></ion-icon>
+        <span>Search Catalog</span>
+    </a>
+
+    <a href="#borrowings">
+        <ion-icon name="book-outline"></ion-icon>
+        <span>Issued Books</span>
+    </a>
+
+    <a href="#notifications">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <span>Notifications</span>
+    </a>
+
+    <a href="/student/suggestions" target="_top">
+        <ion-icon name="bulb-outline"></ion-icon>
+        <span>Suggestions</span>
+    </a>
+
+    <a href="#profile">
+        <ion-icon name="person-outline"></ion-icon>
+        <span>Profile</span>
+    </a>
+
+    <a href="/login" target="_top" id="logout-btn" style="color: #E74C3C;">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>Sign Out</span>
+    </a>
+</nav>
+        </ul>
+    </aside>
+
+    <div class="dashboard-nav">
+
+
+
+        <button class="sidebar-toggle-mobile" id="sidebar-toggle-mobile" type="button" aria-label="Open menu">
+    <ion-icon name="menu-outline"></ion-icon>
+</button>
+        <div class="nav-left">
+            <h2 id="user-display-name" style="font-weight: 700; color: var(--primary-slate); font-size: 1.15rem;">Scholar Kumar</h2>
+            <p id="student-meta" style="color: var(--text-muted); font-size: 0.8rem;">B.Tech CSE - III Year (Roll: 23-CSE-001)</p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <div id="fine-display" style="background: rgba(230, 126, 34, 0.1); color: var(--accent-gold); padding: 6px 12px; border-radius: 18px; font-weight: 600; font-size: 0.75rem;">Fine: ₹0.00</div>
+            <button class="btn btn-accent" id="open-payment-modal">
+                <ion-icon name="card-outline"></ion-icon> Pay Fine
+            </button>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="notification-banner animate-fade">
+            <ion-icon name="megaphone-outline" style="font-size: 1.2rem; color: var(--accent-gold);"></ion-icon>
+            <div>
+                <strong style="display: block; font-size: 0.88rem;">Student Alert</strong>
+                <span id="top-alert" style="font-size: 0.76rem; opacity: 0.9;">Your book "Software Engineering" is due in 2 days. Renew early to avoid fines.</span>
+            </div>
+        </div>
+
+        <div class="stats-container" id="dashboard-home">
+            <div class="stat-item">
+                <div class="stat-icon"><ion-icon name="book-outline"></ion-icon></div>
+                <div class="stat-info">
+                    <h3 style="font-size: 0.85rem;">Issued Books</h3>
+                    <p id="issued-count" style="font-size: 1.3rem; font-weight: 700;">02</p>
+                </div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-icon"><ion-icon name="calendar-outline"></ion-icon></div>
+                <div class="stat-info">
+                    <h3 style="font-size: 0.85rem;">Next Due Date</h3>
+                    <p id="next-due" style="font-size: 1.3rem; font-weight: 700;">19-Mar</p>
+                </div>
+            </div>
+
+            <div class="stat-item" style="border-color: #27AE60;">
+                <div class="stat-icon" style="color: #27AE60; background: rgba(39,174,96,0.1);"><ion-icon name="checkmark-circle-outline"></ion-icon></div>
+                <div class="stat-info">
+                    <h3 style="font-size: 0.85rem;">Books Returned</h3>
+                    <p id="history-count" style="font-size: 1.3rem; font-weight: 700;">18</p>
+                </div>
+            </div>
+
+            <div class="stat-item" style="border-color: #D35400;">
+                <div class="stat-icon"><ion-icon name="bookmark-outline"></ion-icon></div>
+                <div class="stat-info">
+                    <h3 style="font-size: 0.85rem;">Saved / Wishlist</h3>
+                    <p id="saved-count" style="font-size: 1.3rem; font-weight: 700;">04</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions" id="student-actions">
+            <div class="quick-card">
+                <h4>Request New Issue</h4>
+                <p>Choose a book from catalog and send request directly.</p>
+                <button class="btn btn-primary" onclick="openCatalogSection()">
+                    <ion-icon name="add-circle-outline"></ion-icon> Open Search
+                </button>
+            </div>
+
+            <div class="quick-card">
+                <h4>Renew Borrowed Book</h4>
+                <p>Send quick renewal request for currently issued books.</p>
+                <button class="btn btn-outline" onclick="openBorrowingsSection()">
+                    <ion-icon name="refresh-outline"></ion-icon> Request Renewal
+                </button>
+            </div>
+
+            <div class="quick-card">
+                <h4>Check Due & Fines</h4>
+                <p>Track fines, due dates, and payment status instantly.</p>
+                <button class="btn btn-accent" id="clear-fine-btn" onclick="openFineSection()">
+                    <ion-icon name="wallet-outline"></ion-icon> Clear Fine
+                </button>
+            </div>
+
+            <div class="quick-card">
+                <h4>Suggest New Book</h4>
+                <p>Share book details with admin and librarian for future addition.</p>
+                <a href="book-suggestions.html" class="btn btn-outline" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+                    <ion-icon name="bulb-outline"></ion-icon> Open Suggestions
+                </a>
+            </div>
+
+            <div class="quick-card">
+                <h4>Notifications Center</h4>
+                <p>See reminders for due books, fines, and new arrivals.</p>
+                <button class="btn btn-primary" onclick="openNotificationsSection()">
+                    <ion-icon name="notifications-outline"></ion-icon> View Alerts
+                </button>
+            </div>
+        </div>
+
+        <div class="mini-grid">
+            <div class="section-card" id="profile">
+                <div class="student-profile-box">
+                    <div>
+                        <h3 style="color: var(--primary-slate); margin-bottom: 8px; font-size: 1rem;">Student Profile</h3>
+                        <div id="student-profile-details" style="color: var(--text-muted); font-size: 0.82rem; display:grid; gap:6px;">Access your academic library services from one place.</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="section-card" id="mobile-alerts">
+                <h3 style="color: var(--primary-slate); margin-bottom: 14px; font-size: 1rem;">Mobile Alerts & OTP Verification</h3>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; align-items:end;">
+                    <div>
+                        <label style="display:block; font-size:0.78rem; font-weight:600; color:var(--primary-slate); margin-bottom:6px;">Mobile Number</label>
+                        <input type="tel" id="student-mobile-number" class="form-control" placeholder="Enter 10-digit mobile number">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.78rem; font-weight:600; color:var(--primary-slate); margin-bottom:6px;">OTP Code</label>
+                        <input type="text" id="student-otp-code" class="form-control" placeholder="Enter OTP">
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-outline" type="button" id="student-send-otp-btn"><ion-icon name="paper-plane-outline"></ion-icon> Send OTP</button>
+                        <button class="btn btn-accent" type="button" id="student-verify-otp-btn"><ion-icon name="shield-checkmark-outline"></ion-icon> Verify OTP</button>
+                    </div>
+                </div>
+                <p style="font-size:0.78rem; color:var(--text-muted); margin-top:12px;" id="student-mobile-help">After verification, issue, due, overdue, return, renewal, and fine alerts will be sent to this number.</p>
+            </div>
+
+            <div class="section-card" id="notifications">
+                <h3 style="color: var(--primary-slate); margin-bottom: 14px; font-size: 1rem;">Recent Notifications</h3>
+                <div class="notification-list" id="notification-list"></div>
+            </div>
+        </div>
+
+        <div class="search-area" id="catalog">
+            <h3 style="color: var(--primary-slate); font-size: 1rem;">Catalog Search</h3>
+            <p style="color: var(--text-muted); margin-top: -4px; font-size: 0.8rem;">Search books by title, author, subject, ISBN, or book ID.</p>
+
+            <div class="search-input-group">
+                <input type="text" id="book-search" class="form-control" placeholder="Search by Title, Author, Subject, ISBN, or ID...">
+                <button class="btn btn-accent" onclick="renderBookResults()">
+                    <ion-icon name="search-outline"></ion-icon> Search
+                </button>
+                <button class="btn btn-outline" onclick="resetBookResults()">
+                    <ion-icon name="reload-outline"></ion-icon> Reset
+                </button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Book Details</th>
+                            <th>ISBN / ID</th>
+                            <th>Availability</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="catalog-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="glass-card" style="background: white;" id="borrowings">
+            <h3 style="margin-bottom: 18px; color: var(--primary-slate); font-size: 1rem;">My Issued Books & Due Dates</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Book Title</th>
+                            <th>Author</th>
+                            <th>Issue Date</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="issued-body"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="glass-card" style="background: white; margin-top: 22px;" id="payment-history">
+            <h3 style="margin-bottom: 18px; color: var(--primary-slate); font-size: 1rem;">Fine Payment History</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Receipt ID</th><th>Transaction ID</th><th>Status</th><th>Amount</th><th>UPI ID</th><th>Paid On</th><th>Time</th></tr>
+                    </thead>
+                    <tbody id="receipt-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal-mask" id="payment-modal" style="position:fixed; inset:0; background:rgba(15,23,42,0.45); display:none; align-items:center; justify-content:center; padding:18px; z-index:3000;">
+        <div class="modal-card" style="width:min(520px,100%); background:white; border-radius:18px; overflow:hidden; box-shadow: var(--shadow-premium);">
+            <div class="modal-head" style="padding:18px 20px; background: linear-gradient(135deg, var(--primary-slate), var(--primary-light)); color:white; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 style="font-size:1.05rem;">Pay Library Fine</h3>
+                    <p style="font-size:0.78rem; opacity:0.9; margin-top:4px;">Scan QR and complete your payment</p>
+                </div>
+                <button type="button" class="btn btn-outline" id="close-payment-modal" style="background:white; color:var(--primary-slate); border-color:white;">Close</button>
+            </div>
+            <div style="padding:22px; text-align:center;">
+                <p style="color:var(--text-muted); font-size:0.82rem; margin-bottom:6px;">UPI ID: <strong>omkarvinayaka@okaxis</strong></p>
+                <h3 id="payment-amount" style="color:var(--primary-slate); margin-bottom:14px;">Amount: ₹0.00</h3>
+                <img id="payment-qr" alt="Payment QR" style="width:220px; height:220px; border-radius:12px; border:1px solid #EAECEE; object-fit:contain;">
+                <div style="margin:10px 0 14px 0;"><a id="upi-pay-link" class="btn btn-outline" href="#" target="_blank"><ion-icon name="phone-portrait-outline"></ion-icon> Open UPI App</a></div>
+                <p style="font-size:0.76rem; color:var(--text-muted); margin:14px 0;">After payment, enter your transaction ID and click the button below to submit the receipt for admin/librarian verification.</p>
+                <div style="max-width:340px; margin:0 auto 14px auto; text-align:left;">
+                    <label for="student-transaction-id" style="display:block; font-size:0.78rem; color:var(--primary-slate); font-weight:600; margin-bottom:6px;">Transaction ID</label>
+                    <div style="display:flex; align-items:center; gap:8px; background:#f8fafc; border:1px solid #d9e2ec; border-radius:12px; padding:0 12px;">
+                        <ion-icon name="receipt-outline" style="color:var(--accent-copper); font-size:1rem;"></ion-icon>
+                        <input id="student-transaction-id" class="form-control" placeholder="Enter UPI / bank transaction ID" style="border:none; box-shadow:none; background:transparent; padding:12px 0;">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-accent" id="confirm-payment-btn"><ion-icon name="checkmark-done-outline"></ion-icon> Mark as Paid</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/script.js"></script>
+    <script>
+</script>
+    <script>
+        checkAuth('student');
+        document.getElementById('logout-btn')?.addEventListener('click', logout);
+
+        const paymentModal = document.getElementById('payment-modal');
+        const openPaymentBtn = document.getElementById('open-payment-modal');
+        const clearFineBtn = document.getElementById('clear-fine-btn');
+        const closePaymentBtn = document.getElementById('close-payment-modal');
+        const confirmPaymentBtn = document.getElementById('confirm-payment-btn');
+        const studentTransactionIdInput = document.getElementById('student-transaction-id');
+        const studentMobileInput = document.getElementById('student-mobile-number');
+        const studentOtpInput = document.getElementById('student-otp-code');
+        const studentSendOtpBtn = document.getElementById('student-send-otp-btn');
+        const studentVerifyOtpBtn = document.getElementById('student-verify-otp-btn');
+
+        function getCurrentManagedStudent() {
+            const current = getCurrentUser();
+            return getUserByUid(current.uid) || current;
+        }
+
+        function scrollToSection(sectionId, focusId = '') {
+            const section = document.getElementById(sectionId);
+            if (!section) return;
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (focusId) {
+                setTimeout(() => document.getElementById(focusId)?.focus(), 300);
+            }
+        }
+
+        function setActiveSidebar(sectionId) {
+            document.querySelectorAll('.sidebar-menu a').forEach(link => link.classList.remove('active'));
+            const target = document.querySelector(`.sidebar-menu a[href="#${sectionId}"]`) || document.querySelector('.sidebar-menu a[href="#"]');
+            target?.classList.add('active');
+        }
+
+        function openCatalogSection() {
+            setActiveSidebar('catalog');
+            scrollToSection('catalog', 'book-search');
+        }
+
+        function openBorrowingsSection() {
+            setActiveSidebar('borrowings');
+            scrollToSection('borrowings');
+        }
+
+        function openNotificationsSection() {
+            setActiveSidebar('notifications');
+            scrollToSection('notifications');
+        }
+
+        function openProfileSection() {
+            setActiveSidebar('profile');
+            scrollToSection('profile');
+        }
+
+        function openFineSection() {
+            renderStudentSummary();
+            if (studentTransactionIdInput) studentTransactionIdInput.value = '';
+            paymentModal.style.display = 'flex';
+        }
+
+        function requestIssue(bookId) {
+    const currentUser = getCurrentUser();
+
+    if (!currentUser || !['student', 'faculty'].includes(currentUser.role)) {
+        showToast('Only student or faculty can request books', 'error');
+        return { ok: false, message: 'Only student or faculty can request books' };
+    }
+
+    const user = getUserByUid(currentUser.uid) || currentUser;
+    const books = getBooks();
+    const transactions = getTransactions();
+
+    const book = books.find(b => b.id === (findBookByScan(bookId)?.id || bookId));
+
+    if (!book) {
+        showToast('Book not found', 'error');
+        return { ok: false, message: 'Book not found' };
+    }
+
+    if (Number(book.available || 0) <= 0) {
+        showToast('Book currently unavailable', 'error');
+        return { ok: false, message: 'Book currently unavailable' };
+    }
+
+    const alreadyPending = transactions.find(tx =>
+        tx.status === 'PENDING' &&
+        tx.bookId === book.id &&
+        (
+            tx.borrowerUid === user.uid ||
+            tx.borrowerAccountId === user.accountId ||
+            tx.borrowerUsername === user.username
+        )
+    );
+
+    if (alreadyPending) {
+        showToast(`Issue request already pending for ${book.title}`, 'error');
+        return { ok: false, message: `Issue request already pending for ${book.title}` };
+    }
+
+    const alreadyIssued = transactions.find(tx =>
+        tx.status === 'ISSUED' &&
+        tx.bookId === book.id &&
+        (
+            tx.borrowerUid === user.uid ||
+            tx.borrowerAccountId === user.accountId ||
+            tx.borrowerUsername === user.username
+        )
+    );
+
+    if (alreadyIssued) {
+        showToast(`You already have ${book.title}`, 'error');
+        return { ok: false, message: `You already have ${book.title}` };
+    }
+
+    const requestTx = {
+        txId: createId('REQ'),
+        bookId: book.id,
+        barcodeNumber: book.barcodeNumber || '',
+        bookTitle: book.title,
+        bookAuthor: book.author || '-',
+        borrowerId: user.accountId || user.username || user.id || '',
+        borrowerUid: user.uid || '',
+        borrowerAccountId: user.accountId || '',
+        borrowerUsername: user.username || '',
+        borrowerName: user.name || user.username || '',
+        borrowerRole: user.role || '',
+        issueDate: '',
+        dueDate: '',
+        requestedAt: new Date().toISOString(),
+        returnedAt: '',
+        fine: 0,
+        status: 'PENDING'
+    };
+
+    transactions.unshift(requestTx);
+    saveTransactions(transactions);
+
+    addNotification(
+        `New issue request: ${book.title} requested by ${user.name || user.username} (${user.role})`,
+        'library'
+    );
+
+    addNotification(
+        `Issue request sent for ${book.title} (${book.id}). Please wait for librarian approval.`,
+        user.uid
+    );
+
+    renderNotifications();
+    renderStudentSummary();
+    openNotificationsSection();
+    showToast(`Issue request sent for ${book.title}`, 'success');
+
+    return { ok: true, request: requestTx, message: `Issue request sent for ${book.title}` };
+}
+
+        
+
+        
+
+        function renderStudentSummary() {
+            const studentData = getStudentData();
+            const currentStudent = getCurrentManagedStudent();
+            const fineAmount = Number(currentStudent.fineAmount || 0);
+            const profile = currentStudent.profileDetails || {};
+
+            document.getElementById('user-display-name').textContent = currentStudent.name || 'Student';
+            document.getElementById('student-meta').textContent = `${currentStudent.dept || profile.department || 'B.Tech CSE'} - ${currentStudent.year || profile.designation || 'III Year'} (Roll: ${currentStudent.roll || profile.roll || 'N/A'})`;
+            document.getElementById('fine-display').textContent = `Fine: ₹${fineAmount.toFixed(2)}`;
+            // document.getElementById('issued-count').textContent = String(studentData.issuedBooks.length).padStart(2, '0');
+
+            const liveIssued = getUserTransactionHistory(currentStudent.uid)
+    .filter(item => String(item.status || '').toUpperCase() === 'ISSUED');
+
+document.getElementById('issued-count').textContent = String(liveIssued.length).padStart(2, '0');
+
+const nextDueItem = liveIssued
+    .slice()
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+
+document.getElementById('next-due').textContent = nextDueItem ? formatDate(nextDueItem.dueDate).replace(/ \d{4}$/, '') : '--';
+            document.getElementById('history-count').textContent = String(studentData.historyCount).padStart(2, '0');
+            document.getElementById('saved-count').textContent = String(studentData.savedBooks).padStart(2, '0');
+            const liveNotifications = getNotificationsForUser(currentStudent, 10);
+document.getElementById('top-alert').textContent = liveNotifications[0]?.message || 'No new notifications.';
+            // document.getElementById('next-due').textContent = studentData.issuedBooks.length ? studentData.issuedBooks[studentData.issuedBooks.length - 1].dueDate.replace(' 2026', '') : '--';
+            document.getElementById('payment-amount').textContent = `Amount: ₹${fineAmount.toFixed(2)}`;
+            applyQrImage(document.getElementById('payment-qr'), fineAmount || 0.01);
+            document.getElementById('upi-pay-link').href = buildUpiPaymentString(fineAmount || 0.01);
+
+            document.getElementById('student-profile-details').innerHTML = `
+                <div style="grid-column:1 / -1; display:flex; align-items:center; gap:14px; margin-bottom:6px;">
+                    ${profile.profileImage || currentStudent.profileImage ? `<img src="${profile.profileImage || currentStudent.profileImage}" alt="Profile" style="width:70px; height:70px; border-radius:50%; object-fit:cover; border:2px solid #EAECEE;">` : `<div style="width:70px; height:70px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#f4f6f8; color:var(--primary-slate); font-weight:700;">${(currentStudent.name || 'S').charAt(0)}</div>`}
+                    <div style="color: var(--text-muted); font-size:0.82rem;">Profile details synced from user directory.</div>
+                </div>
+                <div><strong>Department:</strong> ${profile.department || currentStudent.dept || '-'}</div>
+                <div><strong>Year:</strong> ${profile.designation || currentStudent.year || '-'}</div>
+                <div><strong>Roll:</strong> ${profile.roll || currentStudent.roll || '-'}</div>
+                <div><strong>Email:</strong> ${profile.email || '-'}</div>
+                <div><strong>Phone:</strong> ${profile.phone || '-'}</div>
+                <div><strong>Phone Status:</strong> ${(profile.phoneVerified || currentStudent.phoneVerified) ? 'Verified' : 'Not Verified'}</div>
+                <div><strong>Address:</strong> ${profile.address || '-'}</div>
+            `;
+            renderStudentMobilePanel(currentStudent);
+        }
+
+        function renderStudentMobilePanel(currentStudent = null) {
+            const student = currentStudent || getCurrentManagedStudent();
+            const profile = student.profileDetails || {};
+            const activeField = document.activeElement;
+            const phoneValue = profile.phone || student.phone || '';
+            if (studentMobileInput && activeField !== studentMobileInput) studentMobileInput.value = phoneValue;
+            if (studentOtpInput && activeField !== studentOtpInput) studentOtpInput.value = activeField === studentOtpInput ? studentOtpInput.value : '';
+            const verified = Boolean(profile.phoneVerified || student.phoneVerified);
+            const verifiedAt = profile.phoneVerifiedAt || student.phoneVerifiedAt || '';
+            const helpLabel = document.getElementById('student-mobile-help');
+            if (helpLabel) helpLabel.textContent = verified
+                ? `Mobile number verified${verifiedAt ? ' on ' + formatDateTime(verifiedAt) : ''}. Alerts are active for this number.`
+                : 'Save the correct number and verify it with OTP before alerts can be sent.';
+        }
+
+        function renderNotifications() {
+    const currentStudent = getCurrentManagedStudent();
+    const wrap = document.getElementById('notification-list');
+    const items = getNotificationsForUser(currentStudent, 10);
+
+    if (!items.length) {
+        wrap.innerHTML = `
+            <div class="notification-item">
+                <ion-icon name="notifications-outline"></ion-icon>
+                <div style="color: var(--primary-slate); font-size: 0.8rem;">No notifications available.</div>
+            </div>
+        `;
+        return;
+    }
+
+    wrap.innerHTML = items.map(item => `
+        <div class="notification-item">
+            <ion-icon name="notifications-outline"></ion-icon>
+            <div style="color: var(--primary-slate); font-size: 0.8rem;">${item.message}</div>
+        </div>
+    `).join('');
+}
+
+        function renderReceiptHistory() {
+            const current = getCurrentUser();
+            const rows = getReceiptsForUser(current.uid);
+            const body = document.getElementById('receipt-body');
+            if (!rows.length) {
+                body.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-muted); padding: 18px; font-size:0.8rem;">No payment receipts available.</td></tr>`;
+                return;
+            }
+            body.innerHTML = rows.map(item => `
+                <tr>
+                    <td>${item.receiptId}</td>
+                    <td>${item.transactionId || '-'}</td>
+                    <td><span class="status-chip ${item.verificationStatus === 'RECEIVED' ? 'status-clear' : (item.verificationStatus === 'NOT_RECEIVED' ? 'status-overdue' : 'status-soon')}">${item.verificationStatus || 'PENDING'}</span></td>
+                    <td>₹${Number(item.amount || 0).toFixed(2)}</td>
+                    <td>${item.upiId || '-'}</td>
+                    <td>${formatDate(item.paidAt)}</td>
+                    <td>${new Date(item.paidAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true })}</td>
+                    <td>${String(item.verificationStatus || '').toUpperCase() === 'RECEIVED' ? `<button class="btn btn-outline mini-btn" data-download-receipt="${item.receiptId}"><ion-icon name="print-outline"></ion-icon> Print / PDF</button>` : `<span style="font-size:0.72rem; color:var(--text-muted); font-weight:600;">Waiting for approval</span>`}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderBookResults() {
+            const query = document.getElementById('book-search').value.trim().toLowerCase();
+            const books = getBooks();
+            const body = document.getElementById('catalog-body');
+            const results = books.filter(book => {
+                if (!query) return true;
+                const haystack = [book.title, book.author, book.category, book.isbn, book.id].join(' ').toLowerCase();
+                return haystack.includes(query);
+            });
+
+            if (!results.length) {
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align:center; color: var(--text-muted); padding: 18px; font-size: 0.8rem;">
+                            No books found for your search.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            body.innerHTML = results.map(book => {
+                const badgeClass = book.available > 5 ? 'status-available' : 'status-low';
+                const badgeText = book.available > 5 ? `${book.available} Available` : `${book.available} Left`;
+                return `
+                    <tr>
+                        <td>
+                            <strong style="font-size:0.8rem;">${book.title}</strong><br>
+                            <span style="color: var(--text-muted); font-size:0.74rem;">${book.author} | Subject: ${book.category}</span>
+                        </td>
+                        <td style="font-size:0.75rem;">${book.isbn}<br><span style="color: var(--text-muted);">${book.id}</span></td>
+                        <td><span class="availability-badge ${badgeClass}">${badgeText}</span></td>
+                        <td>
+                            <button class="btn btn-primary" style="padding:7px 11px; font-size:0.7rem;" onclick="requestIssue('${book.id}')" title="Send issue request">
+                                Request Issue
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function resetBookResults() {
+            document.getElementById('book-search').value = '';
+            renderBookResults();
+        }
+
+        function requestRenewal(bookTitle) {
+    const result = requestRenewalForCurrentUser(bookTitle);
+
+    if (!result.ok) {
+        showToast(result.message, 'error');
+        return;
+    }
+
+    renderNotifications();
+    renderStudentSummary();
+    openNotificationsSection();
+    showToast(result.message, 'success');
+}
+
+
+// ✅ FIXED ISSUED BOOKS FUNCTION
+function renderIssuedBooks() {
+    const currentStudent = getCurrentManagedStudent();
+    const body = document.getElementById('issued-body');
+
+    const issuedBooks = getUserTransactionHistory(currentStudent.uid)
+        .filter(item => String(item.status || '').toUpperCase() === 'ISSUED')
+        .map(item => {
+            const today = new Date();
+            const due = new Date(item.dueDate);
+            const diffDays = Math.ceil((due - today) / 86400000);
+
+            let status = 'Clear';
+            let statusClass = 'status-clear';
+
+            if (diffDays < 0) {
+                status = 'Overdue';
+                statusClass = 'status-overdue';
+            } else if (diffDays <= 2) {
+                status = 'Due Soon';
+                statusClass = 'status-soon';
+            } else if (item.isRenewed || item.renewedAt) {
+                status = 'Extended';
+                statusClass = 'status-clear';
+            }
+
+            return {
+                title: item.bookTitle || '-',
+                author: item.bookAuthor || item.author || '-',
+                issueDate: formatDate(item.issueDate || item.issueAt),
+                dueDate: formatDate(item.dueDate),
+                status,
+                statusClass
+            };
+        });
+
+    if (!issuedBooks.length) {
+        body.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align:center; color: var(--text-muted); padding: 18px; font-size:0.8rem;">
+                    No issued books found
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    body.innerHTML = issuedBooks.map(book => `
+        <tr>
+            <td>${book.title}</td>
+            <td>${book.author}</td>
+            <td>${book.issueDate}</td>
+            <td>${book.dueDate}</td>
+            <td><span class="status-chip ${book.statusClass}">${book.status}</span></td>
+            <td>
+                <button class="btn btn-outline" style="padding:7px 11px; font-size:0.7rem;" onclick="requestRenewal('${String(book.title).replace(/'/g, "&apos;")}')">
+                    Request Renewal
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+
+        function renderAllStudentData() {
+            renderStudentSummary();
+            renderNotifications();
+            renderBookResults();
+            renderIssuedBooks();
+            renderReceiptHistory(); bindReceiptButtons(document);
+            renderStudentMobilePanel();
+        }
+
+        openPaymentBtn.addEventListener('click', () => {
+            openFineSection();
+        });
+        clearFineBtn.addEventListener('click', () => {
+            openFineSection();
+        });
+        closePaymentBtn.addEventListener('click', () => paymentModal.style.display = 'none');
+        paymentModal.addEventListener('click', e => { if (e.target === paymentModal) paymentModal.style.display = 'none'; });
+        confirmPaymentBtn.addEventListener('click', () => {
+            const result = markFinePaidForCurrentUser({ transactionId: studentTransactionIdInput?.value.trim() || '' });
+            if (!result.ok) {
+                showToast(result.message, 'error');
+                return;
+            }
+            showToast(result.message, 'success');
+            paymentModal.style.display = 'none';
+            renderAllStudentData();
+        });
+
+        document.getElementById('book-search').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') renderBookResults();
+        });
+
+        document.querySelectorAll('.sidebar-menu a[href^="#"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = (link.getAttribute('href') || '#').replace('#', '');
+                if (!targetId) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
+                    link.classList.add('active');
+                    return;
+                }
+                setActiveSidebar(targetId);
+                scrollToSection(targetId, targetId === 'catalog' ? 'book-search' : '');
+            });
+        });
+
+
+        studentSendOtpBtn?.addEventListener('click', async () => {
+            const current = getCurrentManagedStudent();
+            const result = await sendOtpForUser(current.uid, studentMobileInput?.value || '');
+            showToast(result.message, result.ok ? 'success' : 'error');
+            renderStudentMobilePanel(getCurrentManagedStudent());
+        });
+
+        studentVerifyOtpBtn?.addEventListener('click', async () => {
+            const current = getCurrentManagedStudent();
+            const result = await verifyOtpForUser(current.uid, studentOtpInput?.value || '');
+            showToast(result.message, result.ok ? 'success' : 'error');
+            renderAllStudentData();
+        });
+
+        window.addEventListener('storage', renderAllStudentData);
+        window.addEventListener('focus', renderAllStudentData);
+        setInterval(renderAllStudentData, 3000);
+
+        function syncHashNavigation() {
+            const hash = window.location.hash.replace('#', '');
+            if (!hash) return;
+            if (['catalog', 'borrowings', 'notifications', 'profile'].includes(hash)) {
+                setTimeout(() => {
+                    setActiveSidebar(hash);
+                    scrollToSection(hash, hash === 'catalog' ? 'book-search' : '');
+                }, 150);
+            }
+        }
+
+        window.addEventListener('hashchange', syncHashNavigation);
+
+        renderAllStudentData();
+        syncHashNavigation();
+            function bindReceiptButtons(scope = document) {
+            scope.querySelectorAll('[data-download-receipt]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const item = getReceipts().find(r => r.receiptId === btn.dataset.downloadReceipt);
+                    if (item) downloadReceiptPdf(item);
+                });
+            });
+        }
+</script>
+</body>
+</html>

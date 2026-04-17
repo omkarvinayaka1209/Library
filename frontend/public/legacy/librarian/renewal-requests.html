@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renewal Requests | VEMU Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .main-content { margin-left: var(--sidebar-width); padding: 36px; }
+        .page-hero {
+            background: linear-gradient(135deg, rgba(44,62,80,0.98), rgba(211,84,0,0.92));
+            color: #fff;
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 20px 60px rgba(15,23,42,0.16);
+        }
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 22px;
+        }
+        .hero-card {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 20px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+        }
+        .hero-card small {
+            display: block;
+            opacity: .8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+        .hero-card strong { font-size: 1.65rem; }
+        .filters {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr .8fr;
+            gap: 14px;
+            margin-top: 24px;
+        }
+        .filter-box {
+            background: #fff;
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid #eef2f7;
+            box-shadow: 0 14px 44px rgba(15,23,42,0.05);
+        }
+        .request-shell {
+            margin-top: 24px;
+            background: #fff;
+            border-radius: 24px;
+            padding: 22px;
+            box-shadow: 0 18px 50px rgba(15,23,42,0.06);
+        }
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: .74rem;
+            font-weight: 700;
+        }
+        .status-pending {
+            background: rgba(230,126,34,0.12);
+            color: #D35400;
+        }
+        .status-approved {
+            background: rgba(39,174,96,0.12);
+            color: #27AE60;
+        }
+        .status-rejected {
+            background: rgba(231,76,60,0.12);
+            color: #E74C3C;
+        }
+        .meta-text {
+            color: var(--text-muted);
+            font-size: .78rem;
+        }
+        .mini-btn {
+            padding: 8px 12px;
+            font-size: .76rem;
+        }
+        @media (max-width: 1080px) {
+            .hero-grid { grid-template-columns: 1fr 1fr; }
+            .filters { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; padding: 18px; }
+            .hero-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="compact-page no-auto-dashboard-tools">
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="sidebar-logo">
+            <h3 id="role-heading">VEMU Admin</h3>
+        </div>
+        <ul class="sidebar-menu" id="role-sidebar">
+            <!-- Sidebar items inserted by script -->
+<li><a href="librarian-dashboard.html"><ion-icon name="grid-outline"></ion-icon> Workbench</a></li>
+             <li><a href="add-books.html"><ion-icon name="add-outline"></ion-icon> Add Records</a></li>
+            <li><a href="issue-book.html"><ion-icon name="swap-horizontal-outline"></ion-icon> New Transaction</a></li>
+            <li><a href="manage-books.html"><ion-icon name="library-outline"></ion-icon> Catalog View</a></li>
+            <li><a href="suggestions.html" class="active"><ion-icon name="bulb-outline"></ion-icon> Suggestions</a></li>
+            <li><a href="receipts-history.html"><ion-icon name="receipt-outline"></ion-icon> Receipts History</a></li>
+            <li><a href="manage-users.html"><ion-icon name="search-outline"></ion-icon> Scholar Search</a></li>
+            <li><a href="renewal-requests.html"><ion-icon name="time-outline"></ion-icon> Renewal Requests</a></li>
+            <li style="margin-top: 50px;"><a href="#" id="logout-btn" style="color: #E74C3C;"><ion-icon name="log-out-outline"></ion-icon> Sign Out</a></li>
+        </ul>
+    </aside>
+
+    <div class="dashboard-nav">
+        <button class="sidebar-toggle-mobile" id="sidebar-toggle-mobile" type="button" aria-label="Open menu">
+            <ion-icon name="menu-outline"></ion-icon>
+        </button>
+        <div class="nav-left">
+            <h2 style="font-weight:700; color:var(--primary-slate);">Renewal Requests</h2>
+            <p style="color:var(--text-muted); font-size:.9rem;">Approve or reject book renewal requests and assign renewal days manually</p>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <section class="page-hero">
+            <div style="display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap; align-items:flex-start;">
+                <div>
+                    <div style="font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; opacity:.82;">VEMU Library</div>
+                    <h1 style="margin:8px 0 10px; font-size:2rem;">Renewal Control Center</h1>
+                    <p style="max-width:740px; line-height:1.6; opacity:.92;">
+                        Student and faculty users can request renewal. Admin or librarian can review all requests here, enter manual renewal days, and approve or reject each request without affecting other modules.
+                    </p>
+                </div>
+            </div>
+
+            <div class="hero-grid">
+                <div class="hero-card">
+                    <small>Total Requests</small>
+                    <strong id="metric-total">0</strong>
+                    <div class="meta-text" style="color:rgba(255,255,255,0.72);">All stored requests</div>
+                </div>
+                <div class="hero-card">
+                    <small>Pending</small>
+                    <strong id="metric-pending">0</strong>
+                    <div class="meta-text" style="color:rgba(255,255,255,0.72);">Waiting for action</div>
+                </div>
+                <div class="hero-card">
+                    <small>Approved</small>
+                    <strong id="metric-approved">0</strong>
+                    <div class="meta-text" style="color:rgba(255,255,255,0.72);">Renewed successfully</div>
+                </div>
+                <div class="hero-card">
+                    <small>Rejected</small>
+                    <strong id="metric-rejected">0</strong>
+                    <div class="meta-text" style="color:rgba(255,255,255,0.72);">Declined requests</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="filters">
+            <div class="filter-box">
+                <label style="display:block; font-weight:600; margin-bottom:8px;">Search by user, book, username, or request ID</label>
+                <input id="renewal-search" class="form-control" placeholder="Search renewal requests...">
+            </div>
+            <div class="filter-box">
+                <label style="display:block; font-weight:600; margin-bottom:8px;">Status</label>
+                <select id="renewal-status" class="form-control">
+                    <option value="">All Status</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="REJECTED">Rejected</option>
+                </select>
+            </div>
+            <div class="filter-box">
+                <label style="display:block; font-weight:600; margin-bottom:8px;">Role</label>
+                <select id="renewal-role" class="form-control">
+                    <option value="">All Roles</option>
+                    <option value="student">Student</option>
+                    <option value="faculty">Faculty</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="request-shell">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+                <div>
+                    <h3 style="margin:0;">Renewal Request History</h3>
+                    <small style="color:var(--text-muted);">Approve with manual days or reject requests</small>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Book</th>
+                            <th>Requested On</th>
+                            <th>Status</th>
+                            <th>Approved Days</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="renewal-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="../js/script.js"></script>
+    <script>
+        checkAuth(['admin', 'librarian']);
+        document.getElementById('logout-btn')?.addEventListener('click', logout);
+
+        const currentUser = getCurrentUser();
+        const roleHeading = document.getElementById('role-heading');
+        const roleSidebar = document.getElementById('role-sidebar');
+
+        function renderSidebarByRole() {
+            const isAdmin = currentUser?.role === 'admin';
+            roleHeading.textContent = isAdmin ? 'VEMU Admin' : 'VEMU Librarian';
+
+            roleSidebar.innerHTML = isAdmin ? `
+                <li><a href="admin-dashboard.html"><ion-icon name="grid-outline"></ion-icon> Dashboard</a></li>
+                <li><a href="add-books.html"><ion-icon name="add-outline"></ion-icon> Add Records</a></li>
+                <li><a href="manage-books.html"><ion-icon name="library-outline"></ion-icon> Inventory State</a></li>
+                <li><a href="manage-users.html"><ion-icon name="people-outline"></ion-icon> User Directory</a></li>
+                <li><a href="issue-book.html"><ion-icon name="swap-horizontal-outline"></ion-icon> Transactions</a></li>
+                <li><a href="renewal-requests.html" class="active"><ion-icon name="time-outline"></ion-icon> Renewal Requests</a></li>
+                <li><a href="suggestions.html"><ion-icon name="bulb-outline"></ion-icon> Suggestions</a></li>
+                <li><a href="reports.html"><ion-icon name="stats-chart-outline"></ion-icon> Analytics</a></li>
+                <li><a href="receipts-history.html"><ion-icon name="receipt-outline"></ion-icon> Receipts History</a></li>
+                <li style="margin-top:50px;"><a href="#" id="logout-btn" style="color:#E74C3C;"><ion-icon name="log-out-outline"></ion-icon> Terminate Session</a></li>
+            ` : `
+                <li><a href="librarian-dashboard.html"><ion-icon name="grid-outline"></ion-icon> Workbench</a></li>
+                <li><a href="add-books.html"><ion-icon name="add-outline"></ion-icon> Add Records</a></li>
+                <li><a href="issue-book.html"><ion-icon name="swap-horizontal-outline"></ion-icon> New Transaction</a></li>
+                <li><a href="manage-books.html"><ion-icon name="library-outline"></ion-icon> Catalog View</a></li>
+                <li><a href="renewal-requests.html" class="active"><ion-icon name="time-outline"></ion-icon> Renewal Requests</a></li>
+                <li><a href="suggestions.html"><ion-icon name="bulb-outline"></ion-icon> Suggestions</a></li>
+                <li><a href="receipts-history.html"><ion-icon name="receipt-outline"></ion-icon> Receipts History</a></li>
+                <li><a href="manage-users.html"><ion-icon name="people-outline"></ion-icon> Scholar Search</a></li>
+                <li style="margin-top:50px;"><a href="#" id="logout-btn" style="color:#E74C3C;"><ion-icon name="log-out-outline"></ion-icon> Sign Out</a></li>
+            `;
+
+            document.getElementById('logout-btn')?.addEventListener('click', logout);
+        }
+
+        function getStatusMarkup(status) {
+            const value = String(status || 'PENDING').toUpperCase();
+            if (value === 'APPROVED') {
+                return `<span class="status-chip status-approved"><ion-icon name="checkmark-circle-outline"></ion-icon> APPROVED</span>`;
+            }
+            if (value === 'REJECTED') {
+                return `<span class="status-chip status-rejected"><ion-icon name="close-circle-outline"></ion-icon> REJECTED</span>`;
+            }
+            return `<span class="status-chip status-pending"><ion-icon name="time-outline"></ion-icon> PENDING</span>`;
+        }
+
+        function getAllRenewalRequestsSafe() {
+            if (typeof getRenewalRequests === 'function') return getRenewalRequests();
+            try {
+                return JSON.parse(localStorage.getItem('vemu_renewal_requests') || '[]');
+            } catch (_) {
+                return [];
+            }
+        }
+
+        function renderRenewalMetrics(items) {
+            document.getElementById('metric-total').textContent = items.length;
+            document.getElementById('metric-pending').textContent = items.filter(x => String(x.status || '').toUpperCase() === 'PENDING').length;
+            document.getElementById('metric-approved').textContent = items.filter(x => String(x.status || '').toUpperCase() === 'APPROVED').length;
+            document.getElementById('metric-rejected').textContent = items.filter(x => String(x.status || '').toUpperCase() === 'REJECTED').length;
+        }
+
+        function approveRenewal(requestId) {
+            const daysText = prompt('Enter renewal days:', '15');
+            if (daysText === null) return;
+
+            const extraDays = Math.max(1, Number(daysText || 0));
+            if (!extraDays || Number.isNaN(extraDays)) {
+                showToast('Please enter valid renewal days', 'error');
+                return;
+            }
+
+            const result = processRenewalRequest(requestId, 'APPROVED', extraDays);
+            showToast(result.message, result.ok ? 'success' : 'error');
+            renderRenewalRequests();
+        }
+
+        function rejectRenewal(requestId) {
+            const result = processRenewalRequest(requestId, 'REJECTED', 0);
+            showToast(result.message, result.ok ? 'success' : 'error');
+            renderRenewalRequests();
+        }
+
+        function renderRenewalRequests() {
+    const search = String(document.getElementById('renewal-search').value || '').trim().toLowerCase();
+    const status = String(document.getElementById('renewal-status').value || '').trim().toUpperCase();
+    const role = String(document.getElementById('renewal-role').value || '').trim().toLowerCase();
+
+    const all = getAllRenewalRequestsSafe()
+        .slice()
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+    renderRenewalMetrics(all);
+
+    const filtered = all.filter(item => {
+        const haystack = [
+            item.requestId,
+            item.requesterName,
+            item.username,
+            item.bookTitle,
+            item.role
+        ].filter(Boolean).join(' ').toLowerCase();
+
+        const matchesSearch = !search || haystack.includes(search);
+        const matchesStatus = !status || String(item.status || '').toUpperCase() === status;
+        const matchesRole = !role || String(item.role || '').toLowerCase() === role;
+
+        return matchesSearch && matchesStatus && matchesRole;
+    });
+
+    const body = document.getElementById('renewal-body');
+
+    if (!filtered.length) {
+        body.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align:center; color:var(--text-muted); padding:18px;">
+                    No renewal requests found.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    body.innerHTML = filtered.map(item => `
+        <tr>
+            <td>${item.requestId || '-'}</td>
+            <td>
+                <strong>${item.requesterName || '-'}</strong><br>
+                <span class="meta-text">${item.username || '-'}</span>
+            </td>
+            <td style="text-transform:capitalize;">${item.role || '-'}</td>
+            <td>${item.bookTitle || '-'}</td>
+            <td>${item.createdAt ? formatDateTime(item.createdAt) : '-'}</td>
+            <td>${getStatusMarkup(item.status)}</td>
+            <td>${Number(item.extraDays || 0) > 0 ? `${item.extraDays} days` : '-'}</td>
+            <td>
+                ${String(item.status || '').toUpperCase() === 'PENDING' ? `
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn btn-outline mini-btn" onclick="approveRenewal('${item.requestId}')">
+                            <ion-icon name="checkmark-outline"></ion-icon> Approve
+                        </button>
+                        <button class="btn btn-outline mini-btn" onclick="rejectRenewal('${item.requestId}')" style="border-color:#E74C3C; color:#E74C3C;">
+                            <ion-icon name="close-outline"></ion-icon> Reject
+                        </button>
+                    </div>
+                ` : `<span class="meta-text">Completed</span>`}
+            </td>
+        </tr>
+    `).join('');
+}
+
+        document.getElementById('renewal-search').addEventListener('input', renderRenewalRequests);
+        document.getElementById('renewal-status').addEventListener('change', renderRenewalRequests);
+        document.getElementById('renewal-role').addEventListener('change', renderRenewalRequests);
+
+        window.addEventListener('storage', renderRenewalRequests);
+        window.addEventListener('focus', renderRenewalRequests);
+
+        renderSidebarByRole();
+        renderRenewalRequests();
+    </script>
+</body>
+</html>

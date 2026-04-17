@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>Systems Admin | VEMU Library Management</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; }
+        .activity-feed { margin-top: 30px; }
+        .feed-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .feed-icon {
+            width: 40px; height: 40px;
+            background: rgba(44, 62, 80, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center; justify-content: center;
+            color: var(--primary-slate);
+        }
+    
+        .compact-page .sidebar-logo { width: 60px; padding: 8px; }
+        .compact-page .sidebar-header h3 { font-size: 1.22rem; }
+        .compact-page .dashboard-nav { padding-top: 12px; padding-bottom: 12px; }
+
+        .alert-scroll-box {
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 6px;
+    scroll-behavior: smooth;
+}
+
+.alert-scroll-box::-webkit-scrollbar {
+    width: 8px;
+}
+
+.alert-scroll-box::-webkit-scrollbar-thumb {
+    background: rgba(44, 62, 80, 0.25);
+    border-radius: 10px;
+}
+
+.alert-scroll-box::-webkit-scrollbar-track {
+    background: rgba(44, 62, 80, 0.06);
+    border-radius: 10px;
+}
+
+    </style>
+</head>
+<body class="compact-page">
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="sidebar-logo">
+            <h3>VEMU Admin</h3>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="admin-dashboard.html" class="active"><ion-icon name="grid-outline"></ion-icon> Dashboard</a></li>
+            <li><a href="add-books.html"><ion-icon name="add-outline"></ion-icon> Add Records</a></li>
+            <li><a href="manage-books.html"><ion-icon name="library-outline"></ion-icon> Inventory State</a></li>
+            <li><a href="manage-users.html"><ion-icon name="people-outline"></ion-icon> User Directory</a></li>
+            <li><a href="issue-book.html"><ion-icon name="swap-horizontal-outline"></ion-icon> Transactions</a></li>
+            <li><a href="suggestions.html"><ion-icon name="bulb-outline"></ion-icon> Suggestions</a></li>
+            <li><a href="reports.html"><ion-icon name="stats-chart-outline"></ion-icon> Analytics</a></li>
+            <li><a href="receipts-history.html"><ion-icon name="receipt-outline"></ion-icon> Receipts History</a></li>
+            <li><a href="renewal-requests.html"><ion-icon name="time-outline"></ion-icon> Renewal Requests</a></li>
+            <li style="margin-top: 50px;"><a href="#" id="logout-btn" style="color: #E74C3C;"><ion-icon name="log-out-outline"></ion-icon> Terminate Session</a></li>
+        </ul>
+    </aside>
+
+    <div class="dashboard-nav">
+        <button class="sidebar-toggle-mobile" id="sidebar-toggle-mobile" type="button" aria-label="Open menu">
+    <ion-icon name="menu-outline"></ion-icon>
+</button>
+        <div class="nav-left">
+            <h2 style="font-weight: 700; color: var(--primary-slate);">Dashboard Overview</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Analytical insights for VEMU Library</p>
+        </div>
+        <div class="user-profile flex align-center" style="display: flex; align-items: center; gap: 15px;">
+            <div style="text-align: right;">
+                <h4 id="user-display-name">Administrator</h4>
+                <small id="user-role-name" style="color: var(--accent-copper);">Global System Privileges</small>
+            </div>
+            <div style="width: 45px; height: 45px; background: var(--bg-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--accent-gold); overflow:hidden;">
+                <ion-icon id="admin-avatar-icon" name="person-circle-outline" style="font-size: 2rem; color: var(--primary-slate);"></ion-icon>
+                <img id="admin-avatar-img" alt="Admin Profile" style="display:none; width:100%; height:100%; object-fit:cover;">
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-icon"><ion-icon name="book-outline"></ion-icon></div>
+                <div class="stat-info">
+                    <h3>Total Inventory</h3>
+                    <p style="font-size: 1.8rem; font-weight: 700;"><span id="admin-total-inventory">0</span></p>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><ion-icon name="swap-horizontal-outline"></ion-icon></div>
+                <div class="stat-info">
+                    <h3>Books in Circulation</h3>
+                    <p style="font-size: 1.8rem; font-weight: 700;"><span id="admin-books-circulation">0</span></p>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><ion-icon name="people-outline"></ion-icon></div>
+                <div class="stat-info">
+                    <h3>Registered Scholars</h3>
+                    <p style="font-size: 1.8rem; font-weight: 700;"><span id="admin-registered-scholars">0</span></p>
+                </div>
+            </div>
+            <div class="stat-item" style="border-bottom-color: #E74C3C;">
+                <div class="stat-icon" style="background: rgba(231, 76, 60, 0.1); color: #E74C3C;"><ion-icon name="time-outline"></ion-icon></div>
+                <div class="stat-info">
+                    <h3>Pending Returns</h3>
+                    <p style="font-size: 1.8rem; font-weight: 700;"><span id="admin-pending-returns">0</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+            <!-- Main Grid: Recent Transactions -->
+            <div class="glass-card" style="background: white;">
+                <div class="flex justify-between align-center" style="display: flex; justify-content: space-between; margin-bottom: 25px;">
+                    <h3 style="color: var(--primary-slate);">Live Circulation Stream</h3>
+                    <button class="btn btn-outline btn-sm" style="padding: 5px 15px;">View Full Log</button>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Scholastic Item</th>
+                                <th>Account Name</th>
+                                <th>Status</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-live-circulation-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Side Grid: Activity Feed -->
+            <div class="glass-card" style="background: white;">
+    <h3 style="color: var(--primary-slate); margin-bottom: 16px;">Library Alerts</h3>
+    <div id="admin-notification-list" class="alert-scroll-box" style="display:grid; gap:10px; margin-bottom:20px;"></div>
+
+    <h3 style="color: var(--primary-slate); margin-bottom: 16px;">Renewal Requests</h3>
+    <div id="admin-renewal-requests" class="alert-scroll-box" style="display:grid; gap:10px; margin-bottom:20px;"></div>
+
+    <h3 style="color: var(--primary-slate); margin-bottom: 20px;">System Health</h3>
+    <div class="activity-feed" id="admin-system-health-feed"></div>
+</div>
+        </div>
+    
+        <div class="glass-card" style="background:white; margin-top:24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
+                <div>
+                    <h3 style="margin:0;">User Suggestions Snapshot</h3>
+                    <small style="color: var(--text-muted);">New book requests from faculty members</small>
+                </div>
+                <a href="suggestions.html" class="btn btn-outline" style="text-decoration:none;"><ion-icon name="arrow-forward-outline"></ion-icon> Open Suggestions</a>
+            </div>
+            <div id="admin-suggestion-dashboard-list" style="display:grid; gap:10px; margin-bottom:8px;"></div>
+        </div>
+
+        <div class="glass-card" style="background:white; margin-top:24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
+                <div>
+                    <h3 style="margin:0;">Fine Payment History</h3>
+                    <small style="color: var(--text-muted);">Student and faculty payment receipts with username</small>
+                </div>
+                <a href="receipts-history.html" class="btn btn-outline" style="text-decoration:none;"><ion-icon name="receipt-outline"></ion-icon> Open Receipts</a> <button type="button" class="btn btn-outline" id="export-whole-data-btn"><ion-icon name="download-outline"></ion-icon> Export Whole Data</button>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Username</th><th>Name</th><th>Role</th><th>Payment Details</th><th>Transaction ID</th><th>Status</th><th>Amount</th><th>Paid On</th><th>Time</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="admin-fine-history-body"></tbody>
+                </table>
+            </div>
+        </div>
+</main>
+
+    <!-- Script -->
+    <script src="../js/script.js"></script>
+    <script>
+        checkAuth('admin');
+        document.getElementById('logout-btn')?.addEventListener('click', logout);
+        function renderAdminDashboardLive() {
+            const metrics = getDashboardMetrics();
+            const current = getCurrentUser();
+            const full = getUserByUid(current.uid) || current;
+            const adminImg = document.getElementById('admin-avatar-img');
+            const adminIcon = document.getElementById('admin-avatar-icon');
+            if (adminImg && (full.profileImage || full.profileDetails?.profileImage)) { adminImg.src = full.profileImage || full.profileDetails?.profileImage; adminImg.style.display='block'; if(adminIcon) adminIcon.style.display='none'; }
+            document.getElementById('user-display-name').textContent = full.name || 'Administrator';
+            document.getElementById('admin-total-inventory').textContent = metrics.totalInventory.toLocaleString();
+            document.getElementById('admin-books-circulation').textContent = metrics.inCirculation.toLocaleString();
+            document.getElementById('admin-registered-scholars').textContent = metrics.registeredScholars.toLocaleString();
+            document.getElementById('admin-pending-returns').textContent = metrics.pendingReturns.toLocaleString();
+            const body = document.getElementById('admin-live-circulation-body');
+            body.innerHTML = metrics.activeTransactions.length ? metrics.activeTransactions.map(tx => `<tr><td>${tx.txId}</td><td>${tx.bookTitle}</td><td>${tx.borrowerName || tx.borrowerId || '-'}</td><td><span class="${tx.status === 'ISSUED' ? 'status-active' : 'status-review'}">${tx.status}</span></td><td>${formatDate(tx.issueDate)}</td></tr>`).join('') : '<tr><td colspan="5" style="text-align:center; padding:18px; color:var(--text-muted);">No live circulation data available.</td></tr>';
+            
+            const adminNotificationWrap = document.getElementById('admin-notification-list');
+const adminNotifications = getNotificationsForUser(full, 8);
+
+if (adminNotificationWrap) {
+    adminNotificationWrap.innerHTML = adminNotifications.length
+        ? adminNotifications.map(item => `
+            <div style="background:#f8fafb; border:1px solid #eef2f7; border-radius:12px; padding:12px 14px;">
+                <div style="font-size:0.85rem; color:var(--primary-slate); font-weight:600;">${item.message}</div>
+                <div style="font-size:0.74rem; color:var(--text-muted); margin-top:4px;">${formatDateTime(item.createdAt)}</div>
+            </div>
+        `).join('')
+        : '<div style="color:var(--text-muted); font-size:0.82rem;">No library alerts available.</div>';
+}
+            
+            const wrap = document.getElementById('admin-renewal-requests');
+            const requests = getRenewalRequests();
+            const suggestionWrap = document.getElementById('admin-suggestion-dashboard-list');
+            const suggestionItems = getBookSuggestions();
+            if (suggestionWrap) suggestionWrap.innerHTML = suggestionItems.length ? suggestionItems.slice(0, 5).map(item => `<div style="background:#f8fafb; border:1px solid #eef2f7; border-radius:12px; padding:12px 14px;"><div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;"><div><div style="font-weight:700; color:var(--primary-slate); font-size:0.86rem;">${item.bookName}</div><div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">${item.authorName} • ${item.edition} • ${item.suggesterName}</div><div style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">${formatDateTime(item.suggestedAt)}</div></div><div><span class="status-badge ${item.status === 'ACCEPTED' ? 'status-success' : (item.status === 'REJECTED' ? 'status-danger' : 'status-pending')}">${item.status}</span></div></div></div>`).join('') : '<div style="color:var(--text-muted); font-size:0.82rem;">No user suggestions available.</div>';
+            const fineBody = document.getElementById('admin-fine-history-body');
+            const fineRows = getAllFineReceipts();
+            fineBody.innerHTML = fineRows.length ? fineRows.map(item => {
+                const statusClass = item.verificationStatus === 'RECEIVED' ? 'status-active' : (item.verificationStatus === 'NOT_RECEIVED' ? 'status-review' : 'status-pending');
+                const actions = item.verificationStatus === 'PENDING'
+                    ? `<div style="display:flex; gap:8px; flex-wrap:wrap;"><button class="btn btn-primary mini-btn" data-fine-action="received" data-id="${item.receiptId}"><ion-icon name="checkmark-circle-outline"></ion-icon> Received</button><button class="btn btn-outline mini-btn" data-fine-action="not_received" data-id="${item.receiptId}"><ion-icon name="close-circle-outline"></ion-icon> Not Yet</button></div>`
+                    : `<span class="${statusClass}" style="display:inline-flex; padding:6px 10px; border-radius:999px; font-size:0.75rem;">${item.verificationStatus}</span><div style="font-size:0.72rem; color:var(--text-muted); margin-top:6px;">${item.verifiedBy || '-'} | ${item.verifiedAt ? formatDate(item.verifiedAt) : '-'}</div>`;
+                const view = getReceiptDisplayRecord(item); return `<tr><td>${item.username || '-'}</td><td>${item.name || '-'}</td><td>${item.role || '-'}</td><td>${view.paymentFor || '-'}</td><td>${item.transactionId || '-'}</td><td><span class="${statusClass}" style="display:inline-flex; padding:6px 10px; border-radius:999px; font-size:0.75rem;">${item.verificationStatus || 'PENDING'}</span></td><td>₹${Number(item.amount || 0).toFixed(2)}</td><td>${formatDate(item.paidAt)}</td><td>${new Date(item.paidAt).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12:true })}</td><td><div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">${String(item.verificationStatus || '').toUpperCase() === 'RECEIVED' ? `<button class="btn btn-outline mini-btn" data-download-receipt="${item.receiptId}"><ion-icon name="download-outline"></ion-icon> Print / PDF</button>` : `<span style="font-size:0.72rem; color:var(--text-muted); font-weight:600;">Download after received</span>`}${actions}</div></td></tr>`;
+            }).join('') : '<tr><td colspan="9" style="text-align:center; padding:18px; color:var(--text-muted);">No fine payments available.</td></tr>';
+            const healthFeed = document.getElementById('admin-system-health-feed');
+            const activeUsers = getUsers().filter(item => String(item.status || 'ACTIVE').toUpperCase() === 'ACTIVE').length;
+            const pendingApprovals = fineRows.filter(item => item.verificationStatus === 'PENDING').length;
+            const lowStockCount = getBooks().filter(book => Number(book.available || 0) <= 3).length;
+            healthFeed.innerHTML = `
+                <div class="feed-item"><div class="feed-icon"><ion-icon name="people-circle-outline"></ion-icon></div><div><p style="font-weight:500;">Active Accounts</p><small style="color: var(--text-muted);">${activeUsers} users can log in now</small></div></div>
+                <div class="feed-item"><div class="feed-icon"><ion-icon name="cash-outline"></ion-icon></div><div><p style="font-weight:500;">Pending Fine Verifications</p><small style="color: var(--text-muted);">${pendingApprovals} receipts waiting for confirmation</small></div></div>
+                <div class="feed-item"><div class="feed-icon"><ion-icon name="warning-outline"></ion-icon></div><div><p style="font-weight:500;">Low Stock Alerts</p><small style="color: var(--text-muted);">${lowStockCount} titles are running low</small></div></div>
+            `;
+            fineBody.querySelectorAll('[data-download-receipt]').forEach(btn => btn.addEventListener('click', () => { const item = getReceipts().find(r => r.receiptId === btn.dataset.downloadReceipt); if (item) downloadReceiptPdf(item); }));
+            fineBody.querySelectorAll('[data-fine-action]').forEach(btn => btn.addEventListener('click', () => {
+                const result = updateFineReceiptVerification(btn.dataset.id, btn.dataset.fineAction === 'received' ? 'RECEIVED' : 'NOT_RECEIVED');
+                showToast(result.message, result.ok ? 'success' : 'error');
+                if (result.ok) renderAdminDashboardLive();
+            }));
+            wrap.innerHTML = requests.length ? requests.map(item => {
+                const actions = item.status === 'PENDING' ? `<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;"><button class="btn btn-primary mini-btn" data-renew-action="approve" data-id="${item.requestId}">Approve +15d</button><button class="btn btn-outline mini-btn" data-renew-action="reject" data-id="${item.requestId}">No Renewal</button></div>` : `<div style="margin-top:8px; color:var(--text-muted); font-size:0.78rem;">${item.status} by ${item.decisionBy || '-'}${item.extraDays ? ` | +${item.extraDays} days` : ''}</div>`;
+                return `<div style="background:#f8fafb; border:1px solid #eef2f7; border-radius:12px; padding:12px 14px;"><div style="font-weight:700; color:var(--primary-slate); font-size:0.86rem;">${item.requesterName} (${item.role})</div><div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">${item.username || item.accountId} requested renewal for <strong style="color:var(--primary-slate);">${item.bookTitle}</strong></div><div style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Requested on ${formatDate(item.createdAt)}${item.dueDate ? ` | Current due: ${item.dueDate}` : ''}</div>${actions}</div>`;
+            }).join('') : '<div style="color:var(--text-muted); font-size:0.82rem;">No renewal requests available.</div>';
+            wrap.querySelectorAll('[data-renew-action]').forEach(btn => btn.addEventListener('click', () => {
+                const result = processRenewalRequest(btn.dataset.id, btn.dataset.renewAction === 'approve' ? 'APPROVED' : 'REJECTED', 15);
+                showToast(result.message, result.ok ? 'success' : 'error');
+                if (result.ok) renderAdminDashboardLive();
+            }));
+        }
+        window.addEventListener('storage', renderAdminDashboardLive);
+        window.addEventListener('focus', renderAdminDashboardLive);
+        document.getElementById('export-whole-data-btn')?.addEventListener('click', exportLibraryBackup);
+        renderAdminDashboardLive();
+            function bindReceiptButtons(scope = document) {
+            scope.querySelectorAll('[data-download-receipt]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const item = getReceipts().find(r => r.receiptId === btn.dataset.downloadReceipt);
+                    if (item) downloadReceiptPdf(item);
+                });
+            });
+        }
+</script>
+</body>
+</html>

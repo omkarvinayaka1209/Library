@@ -1,0 +1,20 @@
+{
+  "name": "vemu-library-server",
+  "version": "2.0.0",
+  "private": true,
+  "description": "VEMU Library backend with MongoDB Atlas, SMS support, and AI assistant bridge",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "mongodb": "^6.16.0",
+    "mongoose": "^9.4.1",
+    "node-cron": "^3.0.3",
+    "twilio": "^5.4.2"
+  }
+}

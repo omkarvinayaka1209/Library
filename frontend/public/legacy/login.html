@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholastic Access | VEMU Institute of Technology</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        :root {
+            --login-primary: #2C3E50;
+            --login-accent: #D35400;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            background: #f0f2f5;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .login-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .side-panel {
+            flex: 1.2;
+            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)),
+                        url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            color: white;
+            position: relative;
+        }
+
+        .side-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, transparent, rgba(0,0,0,0.4));
+        }
+
+        .side-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .side-content h1 {
+            font-size: 2.8rem;
+            line-height: 1.1;
+            font-family: 'Montserrat', sans-serif;
+            margin-bottom: 18px;
+        }
+
+        .side-content p {
+            font-size: 1rem;
+            opacity: 0.9;
+            max-width: 460px;
+            margin-bottom: 28px;
+        }
+
+        .role-quote-card {
+            max-width: 420px;
+            padding: 16px 18px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 14px 32px rgba(0,0,0,0.14);
+            backdrop-filter: blur(8px);
+        }
+
+        .role-quote-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #ffd089;
+            background: rgba(211, 84, 0, 0.16);
+            border: 1px solid rgba(255,255,255,0.12);
+            margin-bottom: 12px;
+        }
+
+        .role-quote-text {
+            font-size: 1rem;
+            line-height: 1.65;
+            font-weight: 600;
+            color: rgba(255,255,255,0.96);
+            margin: 0;
+        }
+
+        .role-quote-author {
+            margin-top: 10px;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.74);
+            letter-spacing: 0.03em;
+        }
+
+        .login-panel {
+            flex: 1;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 28px;
+            box-shadow: -20px 0 60px rgba(0,0,0,0.03);
+            position: relative;
+            z-index: 20;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 390px;
+            padding: 10px;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .inst-logo {
+            width: 65px;
+            margin-bottom: 18px;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .inst-logo:hover {
+            transform: scale(1.08) rotate(6deg);
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-btn {
+            padding: 10px;
+            border-radius: 12px;
+            border: 2px solid #f0f2f5;
+            background: #f8fafb;
+            font-weight: 700;
+            font-size: 0.82rem;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .role-btn ion-icon {
+            font-size: 1.1rem;
+            transition: transform 0.3s;
+        }
+
+        .role-btn:hover {
+            border-color: #e2e8f0;
+            background: #fff;
+            transform: translateY(-2px);
+        }
+
+        .role-btn.active {
+            border-color: var(--login-accent);
+            background: rgba(211, 84, 0, 0.03);
+            color: var(--login-accent);
+            box-shadow: 0 8px 16px rgba(211, 84, 0, 0.08);
+        }
+
+        .role-btn.active ion-icon {
+            transform: scale(1.12);
+        }
+
+        .btn-premium {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--login-primary), #34495e);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 12px 26px rgba(44, 62, 80, 0.18);
+            transition: all 0.4s;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 32px rgba(44, 62, 80, 0.24);
+            background: linear-gradient(135deg, #34495e, var(--login-primary));
+        }
+
+        .restricted-msg {
+            background: #fff5f5;
+            color: #e53e3e;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #fed7d7;
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .custom-fallback-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: var(--login-primary);
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            justify-content: center;
+        }
+
+        @media (max-width: 1024px) {
+            .side-panel { display: none; }
+            .login-panel {
+                flex: 1;
+                box-shadow: none;
+                padding: 24px 16px;
+            }
+            .login-box { max-width: 440px; }
+        }
+
+        @media (max-width: 768px) {
+            .login-panel {
+                padding: 70px 14px 18px;
+                justify-content: flex-start;
+            }
+
+            .login-box {
+                padding: 0;
+                max-width: 100%;
+            }
+
+            .form-header { margin-bottom: 22px; }
+            .form-header h2 { font-size: 1.5rem !important; }
+
+            .role-selector {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+                margin-bottom: 16px;
+            }
+
+            .role-btn {
+                padding: 9px 8px;
+                font-size: 0.78rem;
+            }
+
+            .role-btn ion-icon { font-size: 1rem; }
+
+            .btn-premium {
+                padding: 12px;
+                font-size: 0.82rem;
+            }
+
+            .back-home-btn {
+                top: 12px !important;
+                left: 12px !important;
+                padding: 8px 12px !important;
+                font-size: 0.75rem !important;
+                color: var(--login-primary) !important;
+                background: rgba(255,255,255,0.95) !important;
+            }
+
+            .input-field ion-icon {
+                top: 50% !important;
+                transform: translateY(-50%);
+            }
+
+            .form-control { font-size: 15px !important; }
+        }
+
+        @media (max-width: 480px) {
+            .role-selector { grid-template-columns: 1fr 1fr; }
+            .form-header p { font-size: 0.8rem !important; }
+            .restricted-msg { font-size: 0.76rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-wrapper">
+        <a href="index.html" class="back-home-btn" style="position: absolute; top: 20px; left: 20px; z-index: 1000; text-decoration: none; color: white; background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.8rem; transition: all 0.3s;" onmouseover="this.style.background='rgba(0,0,0,0.5)'; this.style.transform='translateX(-3px)'" onmouseout="this.style.background='rgba(0,0,0,0.3)'; this.style.transform='translateX(0)'">
+            <ion-icon name="arrow-back-outline"></ion-icon> Back to Home
+        </a> 
+
+        <div class="side-panel animate-fade">
+            <div class="hero-overlay-pattern" style="position: absolute; inset: 0; opacity: 0.1;"></div>
+            <div class="side-content">
+                <div style="margin-bottom: 28px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                    <img src="https://vemu.org/images/logo.png" alt="VEMU" style="height: 48px; filter: brightness(0) invert(1);" onerror="this.style.display='none'">
+                    <div>
+                        <h2 style="font-size: 1.5rem; letter-spacing: 1px;">VEMU <span style="color: var(--login-accent);">LT</span></h2>
+                        <p style="font-size: 0.65rem; opacity: 0.6; letter-spacing: 1px;">LIBRARY TECHNOLOGY CELL</p>
+                    </div>
+                </div>
+
+                <h1>Empowering <br> Intellectual <br> Capital.</h1>
+
+                <div id="role-context" style="margin-top: 24px; transition: all 0.4s ease;">
+                    <p id="role-desc" style="font-size: 0.95rem; opacity: 0.9; max-width: 460px; margin-bottom: 18px; line-height: 1.5;">
+                        Access VEMU Institute's official library management system. A unified portal for scholars, faculty, and staff.
+                    </p>
+
+                    <div id="role-features"></div>
+                </div>
+
+                <div style="margin-top: 34px; background: rgba(0,0,0,0.2); padding: 18px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+                    <h4 style="color: var(--login-accent); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">
+                        <ion-icon name="pulse-outline" style="vertical-align: middle; margin-right: 6px;"></ion-icon> Live System Node
+                    </h4>
+                    <div style="display: flex; gap: 22px; flex-wrap: wrap;">
+                        <div>
+                            <p style="font-size: 0.6rem; opacity: 0.5;">SERVER LOAD</p>
+                            <p id="live-server-load" style="font-size: 0.82rem; font-weight: 700; color: #27AE60;">24% OPTIMAL</p>
+                        </div>
+                        <div>
+                            <p style="font-size: 0.6rem; opacity: 0.5;">ACTIVE USERS</p>
+                            <p id="live-active-users" style="font-size: 0.82rem; font-weight: 700;">1,240 SCHOLARS</p>
+                        </div>
+                    </div>
+                    <div id="live-node-meta" style="margin-top: 12px; font-size: 0.72rem; color: rgba(255,255,255,0.78);">Live library metrics loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-panel">
+            <div class="login-box reveal">
+                <div class="form-header">
+                    <div id="logo-container" style="margin-bottom: 16px;">
+                        <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="inst-logo" id="main-logo">
+                    </div>
+                    <h2 style="color: var(--login-primary); font-size: 1.8rem; margin-bottom: 6px;">Portal Access</h2>
+                    <p style="color: var(--text-muted); font-size: 0.84rem;">Enter the account credentials created by admin or librarian</p>
+                </div>
+
+                <div class="role-selector" id="role-selector">
+                    <button type="button" class="role-btn" data-role="admin">
+                        <ion-icon name="cog-outline"></ion-icon>Admin
+                    </button>
+                    <button type="button" class="role-btn" data-role="librarian">
+                        <ion-icon name="library-outline"></ion-icon>Librarian
+                    </button>
+                    <button type="button" class="role-btn" data-role="faculty">
+                        <ion-icon name="person-outline"></ion-icon>Faculty
+                    </button>
+                    <button type="button" class="role-btn active" data-role="student">
+                        <ion-icon name="school-outline"></ion-icon>Student
+                    </button>
+                </div>
+
+                <div id="restricted-notice" class="restricted-msg"></div>
+
+                <form id="login-form">
+                    <div class="form-group">
+                        <label style="font-weight: 700; color: var(--login-primary); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 1px;">Academic Identity</label>
+                        <div class="input-field" style="position: relative; margin-top: 8px;">
+                            <ion-icon name="finger-print-outline" style="position: absolute; left: 16px; top: 14px; color: var(--login-accent); font-size: 1rem;"></ion-icon>
+                            <input type="text" id="username" class="form-control" placeholder="Enter Username" style="padding: 12px 14px 12px 42px; border-radius: 10px; border: 2px solid #eee;" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 18px;">
+                        <label style="font-weight: 700; color: var(--login-primary); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 1px;">Security PIN</label>
+                        <div class="input-field" style="position: relative; margin-top: 8px;">
+                            <ion-icon name="key-outline" style="position: absolute; left: 16px; top: 14px; color: var(--login-accent); font-size: 1rem;"></ion-icon>
+                            <input type="password" id="password" class="form-control" placeholder="Enter Password" style="padding: 12px 44px 12px 42px; border-radius: 10px; border: 2px solid #eee;" required>
+                            <button type="button" id="toggle-password-visibility" aria-label="Show password" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); border:none; background:transparent; color: var(--login-accent); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:4px;">
+                                <ion-icon name="eye-outline" id="toggle-password-icon" style="font-size:1.1rem;"></ion-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; align-items: center; margin: 18px 0; gap: 10px; flex-wrap: wrap;">
+                        <a href="#" id="trouble-access-link" style="color: var(--login-accent); text-decoration: none; font-size: 0.76rem; font-weight: 700;">Trouble Accessing?</a>
+                    </div>
+
+                    <button type="submit" class="btn-premium" id="login-submit-btn">
+                        <ion-icon name="log-in-outline"></ion-icon> Synchronize & Enter
+                    </button>
+
+                    <div id="login-help-box" style="display:none; margin-top:12px; padding:12px 14px; border-radius:12px; background:#fff8f1; border:1px solid rgba(211,84,0,0.15); color:var(--login-primary); font-size:0.76rem; line-height:1.55;">
+                        Use the username and password created by admin or librarian. Admin login uses the unique admin account only.
+                    </div>
+
+                    <a href="index.html" style="display: block; margin-top: 18px; text-align: center; color: var(--text-muted); text-decoration: none; font-size: 0.8rem; font-weight: 500; transition: color 0.3s;" onmouseover="this.style.color='var(--login-accent)'" onmouseout="this.style.color='var(--text-muted)'">
+                        <ion-icon name="arrow-back-outline" style="vertical-align: middle; margin-right: 4px;"></ion-icon> Return to Scholastic VEMU LT
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        const mainLogo = document.getElementById('main-logo');
+        if (mainLogo) {
+            mainLogo.onerror = function() {
+                const container = document.getElementById('logo-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="custom-fallback-logo">
+                            <ion-icon name="library" style="color: #D35400; font-size: 2rem;"></ion-icon>
+                            <span>VEMU <span style="color: #D35400;">LT</span></span>
+                        </div>
+                    `;
+                }
+            };
+        }
+
+        const roleContent = {
+            admin: {
+                desc: "A secure control space for managing institutional library operations with clarity and responsibility.",
+                quoteLabel: "Admin Insight",
+                quote: "Strong administration builds a library where every record, resource, and reader stays connected with purpose.",
+                author: "VEMU Library Administration"
+            },
+            librarian: {
+                desc: "A focused workspace for circulation, catalog care, and daily support for the learning community.",
+                quoteLabel: "Librarian Wisdom",
+                quote: "A librarian does more than manage books — they guide curiosity, protect knowledge, and connect people to learning.",
+                author: "VEMU Library Services"
+            },
+            faculty: {
+                desc: "A guided academic access point for teaching, reference support, and research-oriented engagement.",
+                quoteLabel: "Faculty Inspiration",
+                quote: "Great teaching grows when knowledge is shared freely, studied deeply, and brought alive for every learner.",
+                author: "Academic Resource Network"
+            },
+            student: {
+                desc: "A scholar-friendly portal to discover resources, request services, and stay connected with your library journey.",
+                quoteLabel: "Student Motivation",
+                quote: "Every page you read today becomes a step toward the future you are building tomorrow.",
+                author: "Scholastic VEMU LT"
+            }
+        };
+
+        const roleBtns = document.querySelectorAll('.role-btn');
+        const restrictedNotice = document.getElementById('restricted-notice');
+        const loginForm = document.getElementById('login-form');
+        const loginBtn = document.getElementById('login-submit-btn');
+        const roleDesc = document.getElementById('role-desc');
+        const roleFeatures = document.getElementById('role-features');
+        const passwordField = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('toggle-password-visibility');
+        const togglePasswordIcon = document.getElementById('toggle-password-icon');
+        const troubleAccessLink = document.getElementById('trouble-access-link');
+        const loginHelpBox = document.getElementById('login-help-box');
+
+        function updateRoleState(role) {
+            window.currentRole = role;
+
+            const content = roleContent[role];
+            roleDesc.textContent = content.desc;
+            roleFeatures.innerHTML = `
+                <div class="role-quote-card">
+                    <div class="role-quote-label">
+                        <ion-icon name="sparkles-outline"></ion-icon>
+                        ${content.quoteLabel}
+                    </div>
+                    <p class="role-quote-text">“${content.quote}”</p>
+                    <div class="role-quote-author">— ${content.author}</div>
+                </div>
+            `;
+
+            restrictedNotice.style.display = 'none';
+            loginForm.style.opacity = '1';
+            loginForm.style.pointerEvents = 'all';
+            loginBtn.disabled = false;
+        }
+
+        window.currentRole = 'student';
+        updateRoleState(window.currentRole);
+
+        roleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                roleBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                updateRoleState(btn.dataset.role);
+            });
+        });
+
+        togglePasswordBtn?.addEventListener('click', () => {
+            const isHidden = passwordField.type === 'password';
+            passwordField.type = isHidden ? 'text' : 'password';
+            togglePasswordIcon.setAttribute('name', isHidden ? 'eye-off-outline' : 'eye-outline');
+            togglePasswordBtn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+            passwordField.focus();
+        });
+
+        troubleAccessLink?.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginHelpBox.style.display = loginHelpBox.style.display === 'none' ? 'block' : 'none';
+        });
+
+        loginForm.addEventListener('submit', (e) => {
+            handleLogin(e);
+        });
+    </script>
+</body>
+</html>

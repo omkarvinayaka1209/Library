@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Resource Hub | VEMU Library</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .er-banner {
+            background: linear-gradient(rgba(44, 62, 80, 0.9), rgba(44, 62, 80, 0.9)), 
+                        url('https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1200&q=80');
+            padding: 100px 0;
+            color: white;
+            text-align: center;
+        }
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        .resource-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            border-left: 6px solid var(--accent-copper);
+            box-shadow: var(--shadow-soft);
+            transition: var(--transition-smooth);
+        }
+        .resource-card:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-premium);
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-container">
+            <a href="index.html" class="nav-logo">
+                <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" style="height: 50px;">
+                <span>VEMU Library</span>
+            </a>
+
+            
+            <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Open navigation">
+    <ion-icon name="menu-outline"></ion-icon>
+</button>
+
+
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about-library.html">About Library</a></li>
+                <li><a href="digital-library.html">Digital Resources</a></li>
+                <li><a href="https://vemu.org" target="_blank">College Website</a></li>
+            </ul>
+            <a href="login.html" class="btn btn-primary">Portal Login</a>
+        </div>
+    </nav>
+
+    <header class="er-banner">
+        <div class="container animate-fade">
+            <h1 style="font-size: 3rem; margin-bottom: 20px;">Digital Library & E-Resources</h1>
+            <p style="font-size: 1.2rem; opacity: 0.8; max-width: 800px; margin: 0 auto;">Access global research databases, e-books, and academic journals 24/7. Your gateway to unlimited knowledge.</p>
+        </div>
+    </header>
+
+    <section style="padding: 100px 0;">
+        <div class="container">
+            <div class="resource-grid">
+                <div class="resource-card">
+                    <ion-icon name="globe-outline" style="font-size: 3rem; color: var(--accent-copper);"></ion-icon>
+                    <h3 style="margin: 20px 0 10px;">IEEE Xplore Digital Library</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 25px;">Access to scientific and technical content published by IEEE. Journals, transaction, and conference proceedings.</p>
+                    <a href="https://ieeexplore.ieee.org" target="_blank" class="btn btn-outline" style="width: 100%; justify-content: center;">Browse IEEE</a>
+                </div>
+                <div class="resource-card">
+                    <ion-icon name="server-outline" style="font-size: 3rem; color: var(--accent-copper);"></ion-icon>
+                    <h3 style="margin: 20px 0 10px;">DELNET (Inter-Library)</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 25px;">Sharing of resources among various libraries with inter-library loan and document delivery services.</p>
+                    <a href="http://www.delnet.in" target="_blank" class="btn btn-outline" style="width: 100%; justify-content: center;">Access DELNET</a>
+                </div>
+                <div class="resource-card">
+                    <ion-icon name="videocam-outline" style="font-size: 3rem; color: var(--accent-copper);"></ion-icon>
+                    <h3 style="margin: 20px 0 10px;">NPTEL Video Portal</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 25px;">Large collection of engineering video courses provided by IITs and IISc. Available on local server mirroring.</p>
+                    <a href="https://nptel.ac.in" target="_blank" class="btn btn-outline" style="width: 100%; justify-content: center;">Watch Courses</a>
+                </div>
+                <div class="resource-card">
+                    <ion-icon name="book-outline" style="font-size: 3rem; color: var(--accent-copper);"></ion-icon>
+                    <h3 style="margin: 20px 0 10px;">NDLI (National Digital Library)</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 25px;">A single window search facility for various national and international digital repositories.</p>
+                    <a href="https://ndl.iitkgp.ac.in" target="_blank" class="btn btn-outline" style="width: 100%; justify-content: center;">Start Searching</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-desc">
+                    <img src="https://vemu.org/images/logo.png" alt="VEMU Logo" class="footer-logo">
+                    <p style="color: rgba(255,255,255,0.6); margin-top: 20px;">VEMU Institute of Technology is one of the top engineering colleges in Chittoor, Andhra Pradesh. We provide quality education with state-of-the-art facilities.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about-library.html">About Library</a></li>
+                        <!-- <li><a href="digital-library.html">E-Resources</a></li> -->
+                        <li><a href="login.html">Portal Login</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Contact</h4>
+                    <ul style="color: rgba(255,255,255,0.6);">
+                        <li>P. Kothakota, Chittoor, AP</li>
+                        <li>+91 88866 61108</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="text-align: center; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); font-size: 0.8rem;">
+                © 2026 VEMU Institute of Technology. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
