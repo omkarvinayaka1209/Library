@@ -514,7 +514,7 @@ function mountMonthlyFeedbackPrompt() {
                 <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:18px;" id="feedback-stars">${[1,2,3,4,5].map(star => `<button type="button" data-feedback-star="${star}" style="width:48px; height:48px; border:none; border-radius:16px; background:#f8fafc; cursor:pointer; font-size:1.5rem; box-shadow:var(--shadow-soft);">☆</button>`).join('')}</div>
                 <textarea id="feedback-content" class="form-control" rows="5" maxlength="280" placeholder="Write your feedback about the library, support, or digital resources (optional)" style="resize:none;"></textarea>
                 <div style="display:flex; justify-content:space-between; gap:10px; margin-top:16px; flex-wrap:wrap; align-items:center;">
-                    <small style="color:var(--text-muted);">Shown every month on the 12th.</small>
+                    <small style="color:var(--text-muted);">Shown every month on the 17th.</small>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
                         <button type="button" class="btn btn-outline" id="feedback-skip-btn">Maybe Later</button>
                         <button type="button" class="btn btn-accent" id="feedback-submit-btn"><ion-icon name="send-outline"></ion-icon> Submit Feedback</button>
