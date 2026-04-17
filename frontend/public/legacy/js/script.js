@@ -2182,12 +2182,16 @@ async function bootstrapServerBackedState() {
     });
 
         if (remoteHasData) {
-        applyServerStateToLocal(remoteState);
-        hasLoadedServerState = true;
-    }
-    else if (localHasData) await syncPortableLibraryState();
+    applyServerStateToLocal(remoteState);
+    hasLoadedServerState = true;
+} else if (localHasData) {
+    await syncPortableLibraryState();
+    hasLoadedServerState = true;
+} else {
+    hasLoadedServerState = true;
+}
 
-    return remote;
+return remote;
 }
 
 function getSmsApiBase() {
