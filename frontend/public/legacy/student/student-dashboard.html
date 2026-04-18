@@ -665,6 +665,9 @@
 
     // 🔥 LIVE DATA FROM TRANSACTIONS
     const userHistory = getUserTransactionHistory(currentStudent.uid);
+            console.log('CURRENT STUDENT:', currentStudent);
+console.log('MATCHED USER HISTORY:', userHistory);
+console.log('ALL TRANSACTIONS:', getTransactions());
 
     const liveIssued = userHistory.filter(item =>
         String(item.status || '').toUpperCase() === 'ISSUED'
