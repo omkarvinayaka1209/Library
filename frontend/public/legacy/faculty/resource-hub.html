@@ -79,17 +79,16 @@
             });
             const body = document.getElementById('faculty-catalog-body');
             body.innerHTML = books.length ? books.map(book => `
-                <tr>
-                    <td><strong>${book.title}</strong><br><span style="color:var(--text-muted); font-size:0.75rem;">${book.author || '-'} | ${book.category || '-'}</span></td>
-                    <td>${book.id}<br><span style="color:var(--text-muted); font-size:0.75rem;">${book.isbn || '-'}</span></td>
-                    <td><span class="status-badge ${Number(book.available || 0) > 0 ? 'status-success' : 'status-danger'}">${Number(book.available || 0)} Available</span></td>
-                    <td><button class="btn btn-primary faculty-request-btn" data-bookid="${book.id}" style="padding:7px 11px; font-size:0.72rem;">Request Issue</button></td>
-                </tr>
-            `).join('') : `<tr><td colspan="4" style="text-align:center; padding:18px; color:var(--text-muted);">No books found.</td></tr>`;
-            body.querySelectorAll('.faculty-request-btn').forEach(btn => btn.addEventListener('click', () => {
-                const book = getBooks().find(item => item.id === btn.dataset.bookid);
-                showToast(book ? `Issue request noted for ${book.title}` : 'Book not found', book ? 'success' : 'error');
-            }));
+    <tr>
+        <td><strong>${book.title}</strong><br><span style="color:var(--text-muted); font-size:0.75rem;">${book.author || '-'} | ${book.category || '-'}</span></td>
+        <td>${book.id}<br><span style="color:var(--text-muted); font-size:0.75rem;">${book.isbn || '-'}</span></td>
+        <td><span class="status-badge ${Number(book.available || 0) > 0 ? 'status-success' : 'status-danger'}">${Number(book.available || 0)} Available</span></td>
+    </tr>
+`).join('') : `<tr><td colspan="3" style="text-align:center; padding:18px; color:var(--text-muted);">No books found.</td></tr>`;
+            // body.querySelectorAll('.faculty-request-btn').forEach(btn => btn.addEventListener('click', () => {
+            //     const book = getBooks().find(item => item.id === btn.dataset.bookid);
+            //     showToast(book ? `Issue request noted for ${book.title}` : 'Book not found', book ? 'success' : 'error');
+            // }));
         }
         document.getElementById('faculty-book-search').addEventListener('input', renderFacultyCatalog);
         document.getElementById('faculty-book-reset').addEventListener('click', () => { document.getElementById('faculty-book-search').value = ''; renderFacultyCatalog(); });
