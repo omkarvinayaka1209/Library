@@ -694,7 +694,7 @@ const nextDueItem = liveIssued
 
 document.getElementById('next-due').textContent = nextDueItem ? formatDate(nextDueItem.dueDate).replace(/ \d{4}$/, '') : '--';
             document.getElementById('history-count').textContent = String(studentData.historyCount).padStart(2, '0');
-            document.getElementById('saved-count').textContent = String(studentData.savedBooks).padStart(2, '0');
+            // document.getElementById('saved-count').textContent = String(studentData.savedBooks).padStart(2, '0');
             const liveNotifications = getNotificationsForUser(currentStudent, 10);
 document.getElementById('top-alert').textContent = liveNotifications[0]?.message || 'No new notifications.';
             // document.getElementById('next-due').textContent = studentData.issuedBooks.length ? studentData.issuedBooks[studentData.issuedBooks.length - 1].dueDate.replace(' 2026', '') : '--';
