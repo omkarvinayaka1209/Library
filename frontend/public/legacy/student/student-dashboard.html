@@ -768,7 +768,7 @@ document.getElementById('top-alert').textContent = liveNotifications[0]?.message
             if (!results.length) {
                 body.innerHTML = `
                     <tr>
-                        <td colspan="4" style="text-align:center; color: var(--text-muted); padding: 18px; font-size: 0.8rem;">
+                        <td colspan="3" style="text-align:center; color: var(--text-muted); padding: 18px; font-size: 0.8rem;">
                             No books found for your search.
                         </td>
                     </tr>
@@ -777,24 +777,19 @@ document.getElementById('top-alert').textContent = liveNotifications[0]?.message
             }
 
             body.innerHTML = results.map(book => {
-                const badgeClass = book.available > 5 ? 'status-available' : 'status-low';
-                const badgeText = book.available > 5 ? `${book.available} Available` : `${book.available} Left`;
-                return `
-                    <tr>
-                        <td>
-                            <strong style="font-size:0.8rem;">${book.title}</strong><br>
-                            <span style="color: var(--text-muted); font-size:0.74rem;">${book.author} | Subject: ${book.category}</span>
-                        </td>
-                        <td style="font-size:0.75rem;">${book.isbn}<br><span style="color: var(--text-muted);">${book.id}</span></td>
-                        <td><span class="availability-badge ${badgeClass}">${badgeText}</span></td>
-                        <td>
-                            <button class="btn btn-primary" style="padding:7px 11px; font-size:0.7rem;" onclick="requestIssue('${book.id}')" title="Send issue request">
-                                Request Issue
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+    const badgeClass = book.available > 5 ? 'status-available' : 'status-low';
+    const badgeText = book.available > 5 ? `${book.available} Available` : `${book.available} Left`;
+    return `
+        <tr>
+            <td>
+                <strong style="font-size:0.8rem;">${book.title}</strong><br>
+                <span style="color: var(--text-muted); font-size:0.74rem;">${book.author} | Subject: ${book.category}</span>
+            </td>
+            <td style="font-size:0.75rem;">${book.isbn}<br><span style="color: var(--text-muted);">${book.id}</span></td>
+            <td><span class="availability-badge ${badgeClass}">${badgeText}</span></td>
+        </tr>
+    `;
+}).join('');
         }
 
         function resetBookResults() {
