@@ -646,21 +646,25 @@
 }
 
         
-
-        
 function renderStudentSummary() {
     const currentStudent = getCurrentManagedStudent();
     const fineAmount = Number(currentStudent.fineAmount || 0);
     const profile = currentStudent.profileDetails || {};
 
     document.getElementById('user-display-name').textContent = currentStudent.name || 'Student';
-    document.getElementById('student-meta').textContent = `${currentStudent.dept || profile.department || 'B.Tech CSE'} - ${currentStudent.year || profile.designation || 'III Year'} (Roll: ${currentStudent.roll || profile.roll || 'N/A'})`;
+    document.getElementById('student-meta').textContent =
+        `${currentStudent.dept || profile.department || 'B.Tech CSE'} - ${currentStudent.year || profile.designation || 'III Year'} (Roll: ${currentStudent.roll || profile.roll || 'N/A'})`;
     document.getElementById('fine-display').textContent = `Fine: ₹${fineAmount.toFixed(2)}`;
 
     const userHistory = getUserTransactionHistory(currentStudent.uid);
 
-    const liveIssued = userHistory.filter(item => String(item.status || '').toUpperCase() === 'ISSUED');
-    const liveReturned = userHistory.filter(item => String(item.status || '').toUpperCase() === 'RETURNED');
+    const liveIssued = userHistory.filter(item =>
+        String(item.status || '').toUpperCase() === 'ISSUED'
+    );
+
+    const liveReturned = userHistory.filter(item =>
+        String(item.status || '').toUpperCase() === 'RETURNED'
+    );
 
     document.getElementById('issued-count').textContent = String(liveIssued.length).padStart(2, '0');
 
@@ -675,7 +679,8 @@ function renderStudentSummary() {
     document.getElementById('history-count').textContent = String(liveReturned.length).padStart(2, '0');
 
     const liveNotifications = getNotificationsForUser(currentStudent, 10);
-    document.getElementById('top-alert').textContent = liveNotifications[0]?.message || 'No new notifications.';
+    document.getElementById('top-alert').textContent =
+        liveNotifications[0]?.message || 'No new notifications.';
 
     document.getElementById('payment-amount').textContent = `Amount: ₹${fineAmount.toFixed(2)}`;
     applyQrImage(document.getElementById('payment-qr'), fineAmount || 0.01);
@@ -683,7 +688,9 @@ function renderStudentSummary() {
 
     document.getElementById('student-profile-details').innerHTML = `
         <div style="grid-column:1 / -1; display:flex; align-items:center; gap:14px; margin-bottom:6px;">
-            ${profile.profileImage || currentStudent.profileImage ? `<img src="${profile.profileImage || currentStudent.profileImage}" alt="Profile" style="width:70px; height:70px; border-radius:50%; object-fit:cover; border:2px solid #EAECEE;">` : `<div style="width:70px; height:70px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#f4f6f8; color:var(--primary-slate); font-weight:700;">${(currentStudent.name || 'S').charAt(0)}</div>`}
+            ${profile.profileImage || currentStudent.profileImage
+                ? `<img src="${profile.profileImage || currentStudent.profileImage}" alt="Profile" style="width:70px; height:70px; border-radius:50%; object-fit:cover; border:2px solid #EAECEE;">`
+                : `<div style="width:70px; height:70px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#f4f6f8; color:var(--primary-slate); font-weight:700;">${(currentStudent.name || 'S').charAt(0)}</div>`}
             <div style="color: var(--text-muted); font-size:0.82rem;">Profile details synced from user directory.</div>
         </div>
         <div><strong>Department:</strong> ${profile.department || currentStudent.dept || '-'}</div>
@@ -694,6 +701,7 @@ function renderStudentSummary() {
         <div><strong>Phone Status:</strong> ${(profile.phoneVerified || currentStudent.phoneVerified) ? 'Verified' : 'Not Verified'}</div>
         <div><strong>Address:</strong> ${profile.address || '-'}</div>
     `;
+
     renderStudentMobilePanel(currentStudent);
 }
 
