@@ -650,7 +650,30 @@
         
 
         function renderStudentSummary() {
-            const studentData = getStudentData();
+            const currentStudent = getCurrentManagedStudent();
+const fineAmount = Number(currentStudent.fineAmount || 0);
+const profile = currentStudent.profileDetails || {};
+
+document.getElementById('user-display-name').textContent = currentStudent.name || 'Student';
+document.getElementById('student-meta').textContent = `${currentStudent.dept || profile.department || 'B.Tech CSE'} - ${currentStudent.year || profile.designation || 'III Year'} (Roll: ${currentStudent.roll || profile.roll || 'N/A'})`;
+document.getElementById('fine-display').textContent = `Fine: ₹${fineAmount.toFixed(2)}`;
+
+const userHistory = getUserTransactionHistory(currentStudent.uid);
+
+const liveIssued = userHistory.filter(item => String(item.status || '').toUpperCase() === 'ISSUED');
+const liveReturned = userHistory.filter(item => String(item.status || '').toUpperCase() === 'RETURNED');
+
+document.getElementById('issued-count').textContent = String(liveIssued.length).padStart(2, '0');
+
+const nextDueItem = liveIssued
+    .slice()
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+
+document.getElementById('next-due').textContent = nextDueItem
+    ? formatDate(nextDueItem.dueDate).replace(/ \d{4}$/, '')
+    : '--';
+
+document.getElementById('history-count').textContent = String(liveReturned.length).padStart(2, '0');
             const currentStudent = getCurrentManagedStudent();
             const fineAmount = Number(currentStudent.fineAmount || 0);
             const profile = currentStudent.profileDetails || {};
