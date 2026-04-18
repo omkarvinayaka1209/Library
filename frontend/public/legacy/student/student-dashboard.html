@@ -312,7 +312,14 @@
                 </div>
             </div>
 
-            
+            <div class="stat-item" style="border-color: #D35400;">
+                <div class="stat-icon"><ion-icon name="bookmark-outline"></ion-icon></div>
+                <div class="stat-info">
+                    <h3 style="font-size: 0.85rem;">Saved / Wishlist</h3>
+                    <p id="saved-count" style="font-size: 1.3rem; font-weight: 700;">04</p>
+                </div>
+            </div>
+        </div>
 
         <div class="quick-actions" id="student-actions">
             <div class="quick-card">
@@ -643,85 +650,73 @@
         
 
         function renderStudentSummary() {
-    const currentStudent = getCurrentManagedStudent();
-    const fineAmount = Number(currentStudent.fineAmount || 0);
-    const profile = currentStudent.profileDetails || {};
+            const currentStudent = getCurrentManagedStudent();
+const fineAmount = Number(currentStudent.fineAmount || 0);
+const profile = currentStudent.profileDetails || {};
 
-    document.getElementById('user-display-name').textContent = currentStudent.name || 'Student';
+document.getElementById('user-display-name').textContent = currentStudent.name || 'Student';
+document.getElementById('student-meta').textContent = `${currentStudent.dept || profile.department || 'B.Tech CSE'} - ${currentStudent.year || profile.designation || 'III Year'} (Roll: ${currentStudent.roll || profile.roll || 'N/A'})`;
+document.getElementById('fine-display').textContent = `Fine: ₹${fineAmount.toFixed(2)}`;
 
-    document.getElementById('student-meta').textContent =
-        `${currentStudent.dept || profile.department || 'B.Tech CSE'} - 
-        ${currentStudent.year || profile.designation || 'III Year'} 
-        (Roll: ${currentStudent.roll || profile.roll || 'N/A'})`;
+const userHistory = getUserTransactionHistory(currentStudent.uid);
 
-    document.getElementById('fine-display').textContent = `Fine: ₹${fineAmount.toFixed(2)}`;
+const liveIssued = userHistory.filter(item => String(item.status || '').toUpperCase() === 'ISSUED');
+const liveReturned = userHistory.filter(item => String(item.status || '').toUpperCase() === 'RETURNED');
 
-    // 🔥 LIVE DATA FROM TRANSACTIONS
-    const userHistory = getUserTransactionHistory(currentStudent.uid);
-            console.log('CURRENT STUDENT:', currentStudent);
-console.log('MATCHED USER HISTORY:', userHistory);
-console.log('ALL TRANSACTIONS:', getTransactions());
+document.getElementById('issued-count').textContent = String(liveIssued.length).padStart(2, '0');
 
-    const liveIssued = userHistory.filter(item =>
-        String(item.status || '').toUpperCase() === 'ISSUED'
-    );
+const nextDueItem = liveIssued
+    .slice()
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
-    const liveReturned = userHistory.filter(item =>
-        String(item.status || '').toUpperCase() === 'RETURNED'
-    );
+document.getElementById('next-due').textContent = nextDueItem
+    ? formatDate(nextDueItem.dueDate).replace(/ \d{4}$/, '')
+    : '--';
 
-    // Issued count
-    document.getElementById('issued-count').textContent =
-        String(liveIssued.length).padStart(2, '0');
+document.getElementById('history-count').textContent = String(liveReturned.length).padStart(2, '0');
+            const currentStudent = getCurrentManagedStudent();
+            const fineAmount = Number(currentStudent.fineAmount || 0);
+            const profile = currentStudent.profileDetails || {};
 
-    // Next due
-    const nextDueItem = liveIssued
-        .slice()
-        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+            document.getElementById('user-display-name').textContent = currentStudent.name || 'Student';
+            document.getElementById('student-meta').textContent = `${currentStudent.dept || profile.department || 'B.Tech CSE'} - ${currentStudent.year || profile.designation || 'III Year'} (Roll: ${currentStudent.roll || profile.roll || 'N/A'})`;
+            document.getElementById('fine-display').textContent = `Fine: ₹${fineAmount.toFixed(2)}`;
+            // document.getElementById('issued-count').textContent = String(studentData.issuedBooks.length).padStart(2, '0');
 
-    document.getElementById('next-due').textContent =
-        nextDueItem
-            ? formatDate(nextDueItem.dueDate).replace(/ \d{4}$/, '')
-            : '--';
+            const liveIssued = getUserTransactionHistory(currentStudent.uid)
+    .filter(item => String(item.status || '').toUpperCase() === 'ISSUED');
 
-    // Returned count (LIVE)
-    document.getElementById('history-count').textContent =
-        String(liveReturned.length).padStart(2, '0');
+document.getElementById('issued-count').textContent = String(liveIssued.length).padStart(2, '0');
 
-    // Notifications
-    const liveNotifications = getNotificationsForUser(currentStudent, 10);
-    document.getElementById('top-alert').textContent =
-        liveNotifications[0]?.message || 'No new notifications.';
+const nextDueItem = liveIssued
+    .slice()
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
-    // Payment
-    document.getElementById('payment-amount').textContent =
-        `Amount: ₹${fineAmount.toFixed(2)}`;
+document.getElementById('next-due').textContent = nextDueItem ? formatDate(nextDueItem.dueDate).replace(/ \d{4}$/, '') : '--';
+            document.getElementById('history-count').textContent = String(studentData.historyCount).padStart(2, '0');
+            // document.getElementById('saved-count').textContent = String(studentData.savedBooks).padStart(2, '0');
+            const liveNotifications = getNotificationsForUser(currentStudent, 10);
+document.getElementById('top-alert').textContent = liveNotifications[0]?.message || 'No new notifications.';
+            // document.getElementById('next-due').textContent = studentData.issuedBooks.length ? studentData.issuedBooks[studentData.issuedBooks.length - 1].dueDate.replace(' 2026', '') : '--';
+            document.getElementById('payment-amount').textContent = `Amount: ₹${fineAmount.toFixed(2)}`;
+            applyQrImage(document.getElementById('payment-qr'), fineAmount || 0.01);
+            document.getElementById('upi-pay-link').href = buildUpiPaymentString(fineAmount || 0.01);
 
-    applyQrImage(document.getElementById('payment-qr'), fineAmount || 0.01);
-    document.getElementById('upi-pay-link').href =
-        buildUpiPaymentString(fineAmount || 0.01);
-
-    // Profile
-    document.getElementById('student-profile-details').innerHTML = `
-        <div style="grid-column:1 / -1; display:flex; align-items:center; gap:14px; margin-bottom:6px;">
-            ${profile.profileImage || currentStudent.profileImage
-                ? `<img src="${profile.profileImage || currentStudent.profileImage}" 
-                    style="width:70px;height:70px;border-radius:50%;object-fit:cover;">`
-                : `<div style="width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#f4f6f8;">
-                    ${(currentStudent.name || 'S').charAt(0)}
-                  </div>`}
-        </div>
-
-        <div><strong>Department:</strong> ${profile.department || currentStudent.dept || '-'}</div>
-        <div><strong>Year:</strong> ${profile.designation || currentStudent.year || '-'}</div>
-        <div><strong>Roll:</strong> ${profile.roll || currentStudent.roll || '-'}</div>
-        <div><strong>Email:</strong> ${profile.email || '-'}</div>
-        <div><strong>Phone:</strong> ${profile.phone || '-'}</div>
-        <div><strong>Status:</strong> ${(profile.phoneVerified || currentStudent.phoneVerified) ? 'Verified' : 'Not Verified'}</div>
-    `;
-
-    renderStudentMobilePanel(currentStudent);
-}
+            document.getElementById('student-profile-details').innerHTML = `
+                <div style="grid-column:1 / -1; display:flex; align-items:center; gap:14px; margin-bottom:6px;">
+                    ${profile.profileImage || currentStudent.profileImage ? `<img src="${profile.profileImage || currentStudent.profileImage}" alt="Profile" style="width:70px; height:70px; border-radius:50%; object-fit:cover; border:2px solid #EAECEE;">` : `<div style="width:70px; height:70px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#f4f6f8; color:var(--primary-slate); font-weight:700;">${(currentStudent.name || 'S').charAt(0)}</div>`}
+                    <div style="color: var(--text-muted); font-size:0.82rem;">Profile details synced from user directory.</div>
+                </div>
+                <div><strong>Department:</strong> ${profile.department || currentStudent.dept || '-'}</div>
+                <div><strong>Year:</strong> ${profile.designation || currentStudent.year || '-'}</div>
+                <div><strong>Roll:</strong> ${profile.roll || currentStudent.roll || '-'}</div>
+                <div><strong>Email:</strong> ${profile.email || '-'}</div>
+                <div><strong>Phone:</strong> ${profile.phone || '-'}</div>
+                <div><strong>Phone Status:</strong> ${(profile.phoneVerified || currentStudent.phoneVerified) ? 'Verified' : 'Not Verified'}</div>
+                <div><strong>Address:</strong> ${profile.address || '-'}</div>
+            `;
+            renderStudentMobilePanel(currentStudent);
+        }
 
         function renderStudentMobilePanel(currentStudent = null) {
             const student = currentStudent || getCurrentManagedStudent();
